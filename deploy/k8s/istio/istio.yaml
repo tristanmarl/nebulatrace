@@ -1,0 +1,81 @@
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: nebulatrace-gateway
+  namespace: nebulatrace
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: bridge-ui
+  namespace: nebulatrace
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - nebulatrace-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api
+      route:
+        - destination:
+            host: command-api.nebulatrace.svc.cluster.local
+            port:
+              number: 8080
+    - route:
+        - destination:
+            host: bridge-ui.nebulatrace.svc.cluster.local
+            port:
+              number: 8080
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: credits-api
+  namespace: nebulatrace
+spec:
+  host: credits-api.nebulatrace.svc.cluster.local
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    - name: unstable
+      labels:
+        version: unstable
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: credits-api
+  namespace: nebulatrace
+spec:
+  hosts:
+    - credits-api.nebulatrace.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: credits-api.nebulatrace.svc.cluster.local
+            subset: stable
+            port:
+              number: 8080
+---
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: nebulatrace-default
+  namespace: nebulatrace
+spec:
+  accessLogging:
+    - providers:
+        - name: envoy

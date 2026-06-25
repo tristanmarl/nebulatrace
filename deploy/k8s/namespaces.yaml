@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dynatrace
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nebulatrace
+  labels:
+    istio-injection: enabled
+    nebulatrace.dev/otel: "true"
+    nebulatrace.dev/oneagent: "true"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nebulatrace-data
+  labels:
+    istio-injection: disabled

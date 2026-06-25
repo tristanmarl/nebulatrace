@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source .env
+
+kubectl apply -f deploy/k8s/namespaces.yaml
+helm repo add dynatrace https://raw.githubusercontent.com/Dynatrace/dynatrace-operator/main/config/helm/repos/stable
+helm repo update dynatrace
+helm upgrade --install dynatrace-operator dynatrace/dynatrace-operator \
+  --namespace dynatrace \
+  --create-namespace \
+  --atomic
+
+if ! command -v envsubst >/dev/null 2>&1; then
+  echo "envsubst is required. Install gettext-base."
+  exit 1
+fi
+
+envsubst < deploy/k8s/dynatrace/dynakube.yaml.tpl | kubectl apply -f -
