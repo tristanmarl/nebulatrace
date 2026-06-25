@@ -7,7 +7,7 @@ IMAGE_TAG ?= dev
 
 SERVICES := bridge-ui command-api cargo-api mission-api credits-api drone-worker maintenance-api orbit-ai mock-llm
 
-.PHONY: build-images build test push-images install-istio install-dynatrace deploy app-url reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
+.PHONY: build-images build test run-local stop-local push-images install-istio install-dynatrace deploy app-url reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
 
 build-images:
 	@for service in $(SERVICES); do docker build -t $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG) apps/$$service; done
@@ -15,6 +15,12 @@ build-images:
 build: build-images
 
 test: build-images
+
+run-local: build-images
+	./scripts/run-local-docker.sh
+
+stop-local:
+	./scripts/stop-local-docker.sh
 
 push-images:
 	@test "$(IMAGE_REGISTRY)" != "nebulatrace" || (echo "Set IMAGE_REGISTRY to a registry your cluster can pull from before pushing."; exit 1)

@@ -14,8 +14,12 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 
 resource = Resource.create({"service.name": "orbit-ai"})
 trace.set_tracer_provider(TracerProvider(resource=resource))
-trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
-metrics.set_meter_provider(MeterProvider(resource=resource, metric_readers=[PeriodicExportingMetricReader(OTLPMetricExporter())]))
+if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
+    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+metric_readers = []
+if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"):
+    metric_readers.append(PeriodicExportingMetricReader(OTLPMetricExporter()))
+metrics.set_meter_provider(MeterProvider(resource=resource, metric_readers=metric_readers))
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)
 tokens = meter.create_counter("nebulatrace.orbit.tokens")

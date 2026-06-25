@@ -12,7 +12,8 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
 trace.set_tracer_provider(TracerProvider(resource=Resource.create({"service.name": "drone-worker"})))
-trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
+    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
 tracer = trace.get_tracer(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://nebulatrace:nebulatrace@postgres.nebulatrace-data:5432/nebulatrace")
@@ -43,7 +44,15 @@ def handle(channel, method, properties, body):
 
 def main():
     params = pika.URLParameters(RABBITMQ_URL)
-    connection = pika.BlockingConnection(params)
+    connection = None
+    for _ in range(30):
+        try:
+            connection = pika.BlockingConnection(params)
+            break
+        except pika.exceptions.AMQPConnectionError:
+            time.sleep(2)
+    if connection is None:
+        raise RuntimeError("RabbitMQ did not become reachable")
     channel = connection.channel()
     channel.exchange_declare(exchange="ship.missions", exchange_type="topic", durable=True)
     channel.queue_declare(queue="drone.jobs", durable=True)
