@@ -69,6 +69,15 @@ The install script uses the Dynatrace Operator OCI chart pinned to
 For local/dev tenants where the tenant registry ActiveGate image is unavailable,
 the demo pins `ACTIVEGATE_IMAGE` to a public Docker Hub ActiveGate image.
 
+Kubernetes container log collection uses the Dynatrace Operator standalone Log
+module. The demo enables `spec.logMonitoring` in the `DynaKube` and pins the
+public Log module image with:
+
+```bash
+LOGMONITORING_IMAGE_REPOSITORY=public.ecr.aws/dynatrace/dynatrace-logmodule
+LOGMONITORING_IMAGE_TAG=1.339.51.20260603-143443
+```
+
 `DT_API_TOKEN` must be a Dynatrace environment Access Token, not a Platform
 Token. A token starting with `dt0s16` is a Platform Token and the Operator will
 report `Token does not exist` against the environment API.

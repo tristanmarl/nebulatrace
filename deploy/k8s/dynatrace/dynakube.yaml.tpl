@@ -21,6 +21,12 @@ spec:
   enableIstio: true
   metadataEnrichment:
     enabled: true
+  logMonitoring: {}
+  templates:
+    logMonitoring:
+      imageRef:
+        repository: "${LOGMONITORING_IMAGE_REPOSITORY}"
+        tag: "${LOGMONITORING_IMAGE_TAG}"
   oneAgent:
     applicationMonitoring:
       namespaceSelector:
