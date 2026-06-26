@@ -16,12 +16,11 @@ metadata:
   annotations:
     feature.dynatrace.com/automatic-injection: "false"
 spec:
-  apiUrl: "${DT_TENANT_URL}/api"
+  apiUrl: "${DT_API_URL}/api"
   tokens: dynakube
   enableIstio: true
   metadataEnrichment:
     enabled: true
-  logMonitoring: {}
   oneAgent:
     applicationMonitoring:
       namespaceSelector:

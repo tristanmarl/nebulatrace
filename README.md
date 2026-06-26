@@ -39,6 +39,41 @@ This builds local images like `nebulatrace/command-api:dev`.
 
 ## Deploy
 
+### Local k3s
+
+For a local k3s cluster, no container registry is required:
+
+```bash
+kubectl get nodes
+make k3s-deploy
+make app-url
+```
+
+This builds images as `nebulatrace/<service>:dev`, imports them into k3s
+containerd, installs Istio, and deploys the app.
+
+Dynatrace is optional for this local smoke test. To include Dynatrace, create
+`.env` from `.env.example`, set `DT_TENANT_URL` and `DT_API_TOKEN`, then run:
+
+```bash
+make install-dynatrace
+kubectl rollout restart deployment -n nebulatrace
+```
+
+If your Dynatrace URL contains `.apps.`, the install script removes that segment
+for the Operator API URL.
+
+For this DynaKube profile, the token must include at least:
+
+- `DataExport`
+- `activeGateTokenManagement.create`
+- `InstallerDownload`
+
+The Operator may also warn about optional `settings.read` and `settings.write`
+scopes.
+
+### Registry-backed cluster
+
 ```bash
 cp .env.example .env
 # Edit .env with DT_TENANT_URL, DT_API_TOKEN, IMAGE_REGISTRY, and IMAGE_TAG.

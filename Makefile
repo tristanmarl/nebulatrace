@@ -7,7 +7,7 @@ IMAGE_TAG ?= dev
 
 SERVICES := bridge-ui command-api cargo-api mission-api credits-api drone-worker maintenance-api orbit-ai mock-llm
 
-.PHONY: build-images build test run-local stop-local push-images install-istio install-dynatrace deploy app-url reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
+.PHONY: build-images build test run-local stop-local push-images k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
 
 build-images:
 	@for service in $(SERVICES); do docker build -t $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG) apps/$$service; done
@@ -25,6 +25,15 @@ stop-local:
 push-images:
 	@test "$(IMAGE_REGISTRY)" != "nebulatrace" || (echo "Set IMAGE_REGISTRY to a registry your cluster can pull from before pushing."; exit 1)
 	@for service in $(SERVICES); do docker push $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG); done
+
+k3s-load-images: IMAGE_REGISTRY=nebulatrace
+k3s-load-images: IMAGE_TAG=dev
+k3s-load-images: build-images
+	./scripts/k3s-load-images.sh
+
+k3s-deploy: IMAGE_REGISTRY=nebulatrace
+k3s-deploy: IMAGE_TAG=dev
+k3s-deploy: k3s-load-images install-istio deploy
 
 install-istio:
 	./scripts/install-istio.sh

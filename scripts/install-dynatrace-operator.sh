@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source .env
+source <(sed 's/\r$//' .env)
+
+DT_API_URL="${DT_TENANT_URL%/}"
+DT_API_URL="${DT_API_URL/.apps./.}"
+export DT_API_URL
 
 kubectl apply -f deploy/k8s/namespaces.yaml
 helm repo add dynatrace https://raw.githubusercontent.com/Dynatrace/dynatrace-operator/main/config/helm/repos/stable
