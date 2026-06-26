@@ -144,7 +144,23 @@ permission error, create a GitHub token with `write:packages` and run:
 echo "YOUR_TOKEN" | docker login ghcr.io -u tristanmarl --password-stdin
 ```
 
-For public images, Kubernetes can usually pull without an image pull secret.
+GitHub repository visibility and GHCR package visibility are separate. If the
+packages are public, Kubernetes can usually pull without an image pull secret.
+If the packages are private, create an image pull secret in the app namespace:
+
+```bash
+kubectl -n nebulatrace create secret docker-registry ghcr-pull \
+  --docker-server=ghcr.io \
+  --docker-username=tristanmarl \
+  --docker-password="$GHCR_TOKEN"
+```
+
+Then attach it to the default service account:
+
+```bash
+kubectl -n nebulatrace patch serviceaccount default \
+  -p '{"imagePullSecrets":[{"name":"ghcr-pull"}]}'
+```
 
 ## Demo Curses
 
