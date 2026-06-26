@@ -245,7 +245,7 @@ OpenTelemetry workloads get the same release context. Configure the exact
 comma-separated key/value list in `.env`:
 
 ```bash
-OTEL_RESOURCE_ATTRIBUTES=deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0
+OTEL_RESOURCE_ATTRIBUTES=deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring
 ```
 
 The Dynatrace Operator OTLP auto-configuration preserves these attributes and
