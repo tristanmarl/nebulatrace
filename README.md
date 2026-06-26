@@ -15,6 +15,7 @@ anomalies.
 - OpenTelemetry workloads using Dynatrace Operator OTLP auto-configuration
 - Istio service detection through propagated trace context, Envoy OTLP tracing,
   and Unified services / SDv2, with supplemental Envoy/Istio metrics
+- gRPC/RPC traces with successful and failed status codes
 - AI incident investigation prompts for `dynatrace-for-ai`
 
 ## Quick Start
@@ -217,6 +218,7 @@ Tune it in `.env`:
 LOADGEN_DELAY_MS=750
 LOADGEN_BURST=1
 FAAS_TRIGGER_DELAY_MS=5000
+RPC_PROBE_DELAY_MS=2500
 ```
 
 Useful controls:
@@ -224,11 +226,34 @@ Useful controls:
 ```bash
 kubectl -n nebulatrace logs deploy/load-generator -f
 kubectl -n nebulatrace logs deploy/faas-trigger -f
+kubectl -n nebulatrace logs deploy/rpc-probe -f
 kubectl -n nebulatrace scale deployment/load-generator --replicas=0
 kubectl -n nebulatrace scale deployment/load-generator --replicas=1
 kubectl -n nebulatrace scale deployment/faas-trigger --replicas=0
 kubectl -n nebulatrace scale deployment/faas-trigger --replicas=1
 ```
+
+## RPC Traffic
+
+The demo includes a real gRPC path:
+
+```text
+rpc-probe -> rpc-target
+```
+
+`rpc-probe` continuously calls the `Hyperdrive/Align` RPC. `rpc-target` returns
+a mix of successful and failed gRPC statuses:
+
+```text
+OK
+NOT_FOUND
+INVALID_ARGUMENT
+INTERNAL
+DEADLINE_EXCEEDED
+```
+
+Both workloads use OpenTelemetry auto-configuration, so the traces include
+`rpc.system=grpc`, RPC service/method attributes, and error status variation.
 
 ## OTLP Auto-Configuration
 

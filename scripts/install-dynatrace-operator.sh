@@ -1,7 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source <(sed 's/\r$//' .env)
+load_env_file() {
+  local line key value
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%$'\r'}"
+    case "$line" in
+      ""|\#*) continue ;;
+    esac
+    key="${line%%=*}"
+    value="${line#*=}"
+    if [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+      export "$key=$value"
+    fi
+  done < "$1"
+}
+
+load_env_file .env
 
 if [[ "${DT_API_TOKEN:-}" == dt0s16* ]]; then
   echo "DT_API_TOKEN looks like a Dynatrace Platform Token (dt0s16...)."

@@ -16,6 +16,7 @@ The demo should show:
 - ActiveMQ Classic monitored through OneAgent/JVM/JMX-style visibility
 - Constant demo load with some successful and failing requests
 - Mocked FaaS-style trigger telemetry through `faas-trigger`
+- gRPC/RPC telemetry through `rpc-probe -> rpc-target`
 - AI-themed telemetry through `orbit-ai` and `mock-llm`
 
 ## Style
@@ -56,6 +57,8 @@ The demo should show:
 - Mocked FaaS trigger: `faas-trigger` emits OTel spans with `faas.trigger`
   attributes for AWS Lambda, Azure Functions, and Google Cloud Functions, then
   calls `command-api`.
+- RPC demo: `rpc-probe` calls `rpc-target` over gRPC and intentionally produces
+  `OK`, `NOT_FOUND`, `INVALID_ARGUMENT`, `INTERNAL`, and deadline statuses.
 - Failing traffic: the load generator intentionally emits some 500s and 404s.
 
 ## Dynatrace Choices
@@ -138,6 +141,7 @@ Useful runtime checks:
 ```bash
 kubectl -n nebulatrace logs deploy/load-generator -c load-generator --tail=50
 kubectl -n nebulatrace logs deploy/faas-trigger -c faas-trigger --tail=50
+kubectl -n nebulatrace logs deploy/rpc-probe -c rpc-probe --tail=50
 kubectl -n dynatrace logs statefulset/nebulatrace-otel-collector --tail=80
 kubectl -n dynatrace logs daemonset/nebulatrace-logmonitoring --tail=80
 kubectl -n nebulatrace-data describe pod activemq-0

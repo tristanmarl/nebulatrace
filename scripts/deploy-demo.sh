@@ -4,8 +4,23 @@ set -euo pipefail
 IMAGE_REGISTRY_OVERRIDE="${IMAGE_REGISTRY:-}"
 IMAGE_TAG_OVERRIDE="${IMAGE_TAG:-}"
 
+load_env_file() {
+  local line key value
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%$'\r'}"
+    case "$line" in
+      ""|\#*) continue ;;
+    esac
+    key="${line%%=*}"
+    value="${line#*=}"
+    if [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+      export "$key=$value"
+    fi
+  done < "$1"
+}
+
 if [ -f .env ]; then
-  source <(sed 's/\r$//' .env)
+  load_env_file .env
 fi
 
 export IMAGE_REGISTRY="${IMAGE_REGISTRY:-nebulatrace}"
@@ -14,6 +29,7 @@ export OTEL_RESOURCE_ATTRIBUTES="${OTEL_RESOURCE_ATTRIBUTES:-deployment.release_
 export LOADGEN_DELAY_MS="${LOADGEN_DELAY_MS:-750}"
 export LOADGEN_BURST="${LOADGEN_BURST:-1}"
 export FAAS_TRIGGER_DELAY_MS="${FAAS_TRIGGER_DELAY_MS:-5000}"
+export RPC_PROBE_DELAY_MS="${RPC_PROBE_DELAY_MS:-2500}"
 
 if [ -n "$IMAGE_REGISTRY_OVERRIDE" ]; then
   export IMAGE_REGISTRY="$IMAGE_REGISTRY_OVERRIDE"

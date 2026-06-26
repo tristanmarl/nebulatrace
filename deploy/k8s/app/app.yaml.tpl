@@ -23,6 +23,8 @@ data:
   FAAS_TRIGGER_DELAY_MS: "${FAAS_TRIGGER_DELAY_MS}"
   FAAS_FUNCTION_NAME: orion-signal-decoder
   FAAS_TRIGGER_NAME: nebula.distress.signal
+  RPC_TARGET: rpc-target:50051
+  RPC_PROBE_DELAY_MS: "${RPC_PROBE_DELAY_MS}"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -451,6 +453,76 @@ spec:
       containers:
         - name: faas-trigger
           image: ${IMAGE_REGISTRY}/faas-trigger:${IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
+          envFrom:
+            - configMapRef:
+                name: nebulatrace-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rpc-target
+  namespace: nebulatrace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rpc-target
+  template:
+    metadata:
+      labels:
+        app: rpc-target
+      annotations:
+        otlp-exporter-configuration.dynatrace.com/inject: "true"
+        metadata.dynatrace.com/service: rpc-target
+    spec:
+      containers:
+        - name: rpc-target
+          image: ${IMAGE_REGISTRY}/rpc-target:${IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50051
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rpc-target
+  namespace: nebulatrace
+spec:
+  selector:
+    app: rpc-target
+  ports:
+    - name: grpc
+      port: 50051
+      targetPort: 50051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rpc-probe
+  namespace: nebulatrace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rpc-probe
+  template:
+    metadata:
+      labels:
+        app: rpc-probe
+      annotations:
+        otlp-exporter-configuration.dynatrace.com/inject: "true"
+        metadata.dynatrace.com/service: rpc-probe
+    spec:
+      containers:
+        - name: rpc-probe
+          image: ${IMAGE_REGISTRY}/rpc-probe:${IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
