@@ -10,6 +10,7 @@ if [[ "${DT_API_TOKEN:-}" == dt0s16* ]]; then
 fi
 
 export DT_DATA_INGEST_TOKEN="${DT_DATA_INGEST_TOKEN:-$DT_API_TOKEN}"
+export ACTIVEGATE_IMAGE="${ACTIVEGATE_IMAGE:-docker.io/dynatrace/dynatrace-activegate:1.339.39.20260605-153224}"
 
 DT_API_URL="${DT_TENANT_URL%/}"
 DT_API_URL="${DT_API_URL/.apps./.}"

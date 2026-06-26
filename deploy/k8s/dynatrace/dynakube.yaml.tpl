@@ -27,6 +27,7 @@ spec:
         matchLabels:
           nebulatrace.dev/oneagent: "true"
   activeGate:
+    image: "${ACTIVEGATE_IMAGE}"
     capabilities:
       - kubernetes-monitoring
       - routing
