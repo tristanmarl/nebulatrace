@@ -53,6 +53,38 @@ make app-url
 Set `IMAGE_REGISTRY` to a registry your Kubernetes cluster can pull from before
 running `make push-images`.
 
+## Using GHCR
+
+For GitHub Container Registry, use this in `.env`:
+
+```bash
+IMAGE_REGISTRY=ghcr.io/tristanmarl/nebulatrace
+IMAGE_TAG=latest
+```
+
+The build creates one image per service, for example:
+
+```text
+ghcr.io/tristanmarl/nebulatrace/bridge-ui:latest
+ghcr.io/tristanmarl/nebulatrace/command-api:latest
+ghcr.io/tristanmarl/nebulatrace/cargo-api:latest
+```
+
+Before pushing from your machine, log Docker into GHCR:
+
+```bash
+gh auth token | docker login ghcr.io -u tristanmarl --password-stdin
+```
+
+Your GitHub token must be allowed to write packages. If `docker push` returns a
+permission error, create a GitHub token with `write:packages` and run:
+
+```bash
+echo "YOUR_TOKEN" | docker login ghcr.io -u tristanmarl --password-stdin
+```
+
+For public images, Kubernetes can usually pull without an image pull secret.
+
 ## Demo Curses
 
 ```bash
