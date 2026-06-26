@@ -79,6 +79,22 @@ LOGMONITORING_IMAGE_REPOSITORY=public.ecr.aws/dynatrace/dynatrace-logmodule
 LOGMONITORING_IMAGE_TAG=1.339.51.20260603-143443
 ```
 
+Istio service mesh traces use the Dynatrace Operator telemetry ingest endpoint.
+The demo enables `spec.telemetryIngest.protocols: [otlp]` in the `DynaKube`.
+This creates the Operator-managed telemetry ingest service that Envoy sends
+OTLP/HTTP traces to:
+
+```text
+nebulatrace-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces
+```
+
+The demo pins the telemetry ingest collector image with:
+
+```bash
+OTEL_COLLECTOR_IMAGE_REPOSITORY=public.ecr.aws/dynatrace/dynatrace-otel-collector
+OTEL_COLLECTOR_IMAGE_TAG=latest
+```
+
 `DT_API_TOKEN` must be a Dynatrace environment Access Token, not a Platform
 Token. A token starting with `dt0s16` is a Platform Token and the Operator will
 report `Token does not exist` against the environment API.
@@ -262,9 +278,9 @@ messaging.operation=publish|consume
 
 NebulaTrace does not use Classic Istio monitoring as the primary story. Istio is
 installed with an OpenTelemetry extension provider named `dynatrace-otel`.
-Envoy sends mesh spans to `otel-collector.nebulatrace.svc.cluster.local:4317`,
-and that collector exports to Dynatrace using Operator-injected OTLP
-configuration.
+Envoy sends mesh spans directly to the Dynatrace Operator telemetry ingest
+service at `nebulatrace-telemetry-ingest.dynatrace.svc.cluster.local:4318` with
+HTTP path `/v1/traces` and Dynatrace resource detection enabled.
 
 App spans from OneAgent and OpenTelemetry still carry trace context through the
 mesh and are modeled as Dynatrace services, including Unified services / SDv2

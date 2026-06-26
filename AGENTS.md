@@ -36,7 +36,8 @@ The demo should show:
 
   ```bash
   git grep -n dt0 -- . ':!.env'
-  git grep -n tyr74838 -- . ':!.env'
+  git grep -n dynatracelabs -- . ':!.env'
+  git grep -n live.dynatrace.com -- . ':!.env'
   ```
 
 - `.env.example` must contain placeholders only.
@@ -60,9 +61,9 @@ The demo should show:
 - Standalone Log Agent is enabled with `spec.logMonitoring`.
 - OTel workloads rely on Dynatrace Operator OTLP auto-configuration.
 - Do not hardcode OTLP endpoints or tokens in application code.
-- Istio traces use an OpenTelemetry extension provider and the in-cluster
-  `otel-collector`, which exports to Dynatrace using Operator-injected OTLP
-  configuration.
+- Istio traces use an OpenTelemetry extension provider that sends Envoy spans to
+  the Dynatrace Operator telemetry ingest service:
+  `nebulatrace-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces`.
 - ActiveMQ is OneAgent-injected so the Dynatrace Apache ActiveMQ Classic/JMX
   extension can be enabled in the tenant.
 
@@ -120,7 +121,7 @@ Useful runtime checks:
 
 ```bash
 kubectl -n nebulatrace logs deploy/load-generator -c load-generator --tail=50
-kubectl -n nebulatrace logs deploy/otel-collector -c otel-collector --tail=80
+kubectl -n dynatrace logs statefulset/nebulatrace-otel-collector --tail=80
 kubectl -n dynatrace logs daemonset/nebulatrace-logmonitoring --tail=80
 kubectl -n nebulatrace-data describe pod activemq-0
 ```
@@ -137,7 +138,7 @@ kubectl -n nebulatrace-data exec activemq-0 -- wget -qO- \
 Istio trace provider check:
 
 ```bash
-python3 -c "import subprocess; data=subprocess.check_output(['istioctl','proxy-config','listeners','deployment/command-api.nebulatrace','-o','json'], text=True); print('\\n'.join(n for n in ['opentelemetry','otel-collector','dynatrace'] if n in data.lower()))"
+python3 -c "import subprocess; data=subprocess.check_output(['istioctl','proxy-config','listeners','deployment/command-api.nebulatrace','-o','json'], text=True); print('\\n'.join(n for n in ['opentelemetry','telemetry-ingest','dynatrace'] if n in data.lower()))"
 ```
 
 ## Git And Images
@@ -152,6 +153,8 @@ python3 -c "import subprocess; data=subprocess.check_output(['istioctl','proxy-c
 
 - Do not reintroduce RabbitMQ unless explicitly requested.
 - Do not switch back to Classic Istio monitoring as the primary story.
+- Do not route Istio traces through a generic collector when the Operator
+  telemetry ingest endpoint is available.
 - Do not add a new dependency just for convenience if a tiny standard-library
   solution is clear.
 - Do not add dashboards before telemetry shape is stable.

@@ -29,7 +29,6 @@ fi
 kubectl apply -f deploy/k8s/namespaces.yaml
 kubectl apply -f deploy/k8s/data/postgres-init.yaml
 kubectl apply -f deploy/k8s/data/data.yaml
-kubectl apply -f deploy/k8s/istio/otel-collector.yaml
 envsubst < deploy/k8s/app/app.yaml.tpl | kubectl apply -f -
 kubectl apply -f deploy/k8s/istio/istio.yaml
 
