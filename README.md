@@ -63,7 +63,11 @@ kubectl rollout restart deployment -n nebulatrace
 If your Dynatrace URL contains `.apps.`, the install script removes that segment
 for the Operator API URL.
 
-For this DynaKube profile, the token must include at least:
+`DT_API_TOKEN` must be a Dynatrace environment Access Token, not a Platform
+Token. A token starting with `dt0s16` is a Platform Token and the Operator will
+report `Token does not exist` against the environment API.
+
+For this DynaKube profile, the Access Token must include at least:
 
 - `DataExport`
 - `activeGateTokenManagement.create`

@@ -3,6 +3,12 @@ set -euo pipefail
 
 source <(sed 's/\r$//' .env)
 
+if [[ "${DT_API_TOKEN:-}" == dt0s16* ]]; then
+  echo "DT_API_TOKEN looks like a Dynatrace Platform Token (dt0s16...)."
+  echo "Use an environment Access Token from Access Tokens with the Kubernetes: Dynatrace Operator template."
+  exit 1
+fi
+
 DT_API_URL="${DT_TENANT_URL%/}"
 DT_API_URL="${DT_API_URL/.apps./.}"
 export DT_API_URL
