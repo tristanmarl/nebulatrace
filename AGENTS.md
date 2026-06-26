@@ -167,6 +167,8 @@ python3 -c "import subprocess; data=subprocess.check_output(['istioctl','proxy-c
 - Commit cohesive changes with clear messages.
 - Push repo changes to `main` when requested.
 - If app code changes, rebuild and push affected GHCR images.
+- If deploy manifests change, regenerate `deploy/dist/nebulatrace.yaml` with
+  `./scripts/render-install-yaml.sh --no-env`.
 - GHCR package visibility is separate from repository visibility. If packages
   are private, users need an image pull secret.
 

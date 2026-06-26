@@ -40,6 +40,31 @@ This builds local images like `nebulatrace/command-api:dev`.
 
 ## Deploy
 
+### One-file app install
+
+If your cluster already has Istio and a healthy Dynatrace Operator/DynaKube,
+install only the NebulaTrace app, data stores, and Istio routing with:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/tristanmarl/nebulatrace/main/deploy/dist/nebulatrace.yaml
+```
+
+This manifest uses public GHCR image references such as
+`ghcr.io/tristanmarl/nebulatrace/command-api:latest`. The GHCR packages must be
+public, or your cluster needs an image pull secret.
+
+To regenerate the committed default manifest:
+
+```bash
+./scripts/render-install-yaml.sh --no-env
+```
+
+To render a customized manifest from your local `.env`:
+
+```bash
+./scripts/render-install-yaml.sh
+```
+
 ### Local k3s
 
 For a local k3s cluster, no container registry is required:
@@ -270,8 +295,11 @@ OpenTelemetry workloads get the same release context. Configure the exact
 comma-separated key/value list in `.env`:
 
 ```bash
-OTEL_RESOURCE_ATTRIBUTES=deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring
+OTEL_RESOURCE_ATTRIBUTES=deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring
 ```
+
+Use comma-separated `key=value` pairs. Avoid spaces after commas and avoid
+`key: value` syntax.
 
 The Dynatrace Operator OTLP auto-configuration preserves these attributes and
 adds its own Kubernetes/Dynatrace resource attributes to OTel pods. Avoid

@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE_REGISTRY_OVERRIDE="${IMAGE_REGISTRY:-}"
-IMAGE_TAG_OVERRIDE="${IMAGE_TAG:-}"
-
 load_env_file() {
   local line key value
   while IFS= read -r line || [ -n "$line" ]; do
@@ -19,36 +16,48 @@ load_env_file() {
   done < "$1"
 }
 
-if [ -f .env ]; then
+USE_ENV=1
+if [ "${1:-}" = "--no-env" ]; then
+  USE_ENV=0
+fi
+
+if [ "$USE_ENV" -eq 1 ] && [ -f .env ]; then
   load_env_file .env
 fi
 
-export IMAGE_REGISTRY="${IMAGE_REGISTRY:-nebulatrace}"
-export IMAGE_TAG="${IMAGE_TAG:-dev}"
+export IMAGE_REGISTRY="${IMAGE_REGISTRY:-ghcr.io/tristanmarl/nebulatrace}"
+export IMAGE_TAG="${IMAGE_TAG:-latest}"
 export OTEL_RESOURCE_ATTRIBUTES="${OTEL_RESOURCE_ATTRIBUTES:-deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring}"
 export LOADGEN_DELAY_MS="${LOADGEN_DELAY_MS:-750}"
 export LOADGEN_BURST="${LOADGEN_BURST:-1}"
 export FAAS_TRIGGER_DELAY_MS="${FAAS_TRIGGER_DELAY_MS:-5000}"
 export RPC_PROBE_DELAY_MS="${RPC_PROBE_DELAY_MS:-2500}"
 
-if [ -n "$IMAGE_REGISTRY_OVERRIDE" ]; then
-  export IMAGE_REGISTRY="$IMAGE_REGISTRY_OVERRIDE"
-fi
-
-if [ -n "$IMAGE_TAG_OVERRIDE" ]; then
-  export IMAGE_TAG="$IMAGE_TAG_OVERRIDE"
-fi
-
 if ! command -v envsubst >/dev/null 2>&1; then
   echo "envsubst is required. Install gettext-base."
   exit 1
 fi
 
-kubectl apply -f deploy/k8s/namespaces.yaml
-kubectl apply -f deploy/k8s/data/postgres-init.yaml
-envsubst < deploy/k8s/data/data.yaml | kubectl apply -f -
-envsubst < deploy/k8s/app/app.yaml.tpl | kubectl apply -f -
-kubectl apply -f deploy/k8s/istio/istio.yaml
+mkdir -p deploy/dist
 
-kubectl -n nebulatrace rollout status deployment/command-api --timeout=180s || true
-kubectl -n nebulatrace get pods
+{
+  cat <<'YAML'
+# NebulaTrace application demo.
+# Prerequisites:
+# - Dynatrace Operator and a healthy DynaKube already installed.
+# - Istio already installed. The nebulatrace namespace enables sidecar injection.
+# - Public container images under ghcr.io/tristanmarl/nebulatrace.
+# - A default StorageClass for PostgreSQL and ActiveMQ PVCs.
+YAML
+  cat deploy/k8s/namespaces.yaml
+  echo "---"
+  cat deploy/k8s/data/postgres-init.yaml
+  echo "---"
+  envsubst < deploy/k8s/data/data.yaml
+  echo "---"
+  envsubst < deploy/k8s/app/app.yaml.tpl
+  echo "---"
+  cat deploy/k8s/istio/istio.yaml
+} > deploy/dist/nebulatrace.yaml
+
+echo "Rendered deploy/dist/nebulatrace.yaml"
