@@ -20,6 +20,9 @@ data:
   COMMAND_URL: http://command-api:8080
   LOADGEN_DELAY_MS: "${LOADGEN_DELAY_MS}"
   LOADGEN_BURST: "${LOADGEN_BURST}"
+  FAAS_TRIGGER_DELAY_MS: "${FAAS_TRIGGER_DELAY_MS}"
+  FAAS_FUNCTION_NAME: orion-signal-decoder
+  FAAS_TRIGGER_NAME: nebula.distress.signal
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -397,6 +400,32 @@ spec:
       containers:
         - name: load-generator
           image: ${IMAGE_REGISTRY}/load-generator:${IMAGE_TAG}
+          envFrom:
+            - configMapRef:
+                name: nebulatrace-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faas-trigger
+  namespace: nebulatrace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: faas-trigger
+  template:
+    metadata:
+      labels:
+        app: faas-trigger
+      annotations:
+        otlp-exporter-configuration.dynatrace.com/inject: "true"
+        metadata.dynatrace.com/service: faas-trigger
+    spec:
+      containers:
+        - name: faas-trigger
+          image: ${IMAGE_REGISTRY}/faas-trigger:${IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
                 name: nebulatrace-config

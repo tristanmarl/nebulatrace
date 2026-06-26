@@ -205,19 +205,29 @@ The Kubernetes deploy includes `load-generator`, a small Python service that
 continuously calls `command-api` so Dynatrace always has fresh traffic, traces,
 logs, queue work, and database activity to observe.
 
+It also includes `faas-trigger`, a mocked serverless trigger workload. It emits
+OpenTelemetry spans with `faas.trigger=pubsub`, W3C trace context, and rotating
+mock provider attributes for AWS Lambda, Azure Functions, and Google Cloud
+Functions before calling `command-api` to create missions. There is no real FaaS
+platform dependency; it is just demo telemetry shaped like serverless triggers.
+
 Tune it in `.env`:
 
 ```bash
 LOADGEN_DELAY_MS=750
 LOADGEN_BURST=1
+FAAS_TRIGGER_DELAY_MS=5000
 ```
 
 Useful controls:
 
 ```bash
 kubectl -n nebulatrace logs deploy/load-generator -f
+kubectl -n nebulatrace logs deploy/faas-trigger -f
 kubectl -n nebulatrace scale deployment/load-generator --replicas=0
 kubectl -n nebulatrace scale deployment/load-generator --replicas=1
+kubectl -n nebulatrace scale deployment/faas-trigger --replicas=0
+kubectl -n nebulatrace scale deployment/faas-trigger --replicas=1
 ```
 
 ## OTLP Auto-Configuration
@@ -256,6 +266,20 @@ nebulatrace.orbit.llm.latency_ms
 nebulatrace.llm.calls
 nebulatrace.llm.tokens
 nebulatrace.llm.hallucinations
+nebulatrace.faas.triggered
+nebulatrace.faas.failures
+nebulatrace.faas.downstream.latency_ms
+```
+
+The mocked FaaS spans use names and attributes such as:
+
+```text
+aws.lambda sqs trigger
+azure.functions queue trigger
+gcp.cloudfunctions pubsub trigger
+cloud.provider=aws|azure|gcp
+faas.trigger=pubsub
+faas.invoked_name=<mock provider function>
 ```
 
 ## ActiveMQ

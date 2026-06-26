@@ -15,6 +15,7 @@ The demo should show:
 - Istio mesh traffic and Envoy OTLP tracing
 - ActiveMQ Classic monitored through OneAgent/JVM/JMX-style visibility
 - Constant demo load with some successful and failing requests
+- Mocked FaaS-style trigger telemetry through `faas-trigger`
 - AI-themed telemetry through `orbit-ai` and `mock-llm`
 
 ## Style
@@ -52,6 +53,9 @@ The demo should show:
 - Data namespace: `nebulatrace-data`, Istio disabled, OneAgent enabled for
   ActiveMQ.
 - Constant load: `load-generator` runs in Kubernetes by default.
+- Mocked FaaS trigger: `faas-trigger` emits OTel spans with `faas.trigger`
+  attributes for AWS Lambda, Azure Functions, and Google Cloud Functions, then
+  calls `command-api`.
 - Failing traffic: the load generator intentionally emits some 500s and 404s.
 
 ## Dynatrace Choices
@@ -86,6 +90,12 @@ Topology depends on stitched traces. Preserve these rules:
   command-api -> orbit-ai -> mock-llm
   ```
 
+- Mock FaaS traffic should start as:
+
+  ```text
+  faas-trigger -> command-api -> mission-api
+  ```
+
 ## Custom Metrics
 
 Keep service metrics domain-specific and demo-friendly. Current examples:
@@ -104,6 +114,9 @@ Keep service metrics domain-specific and demo-friendly. Current examples:
 - `nebulatrace.llm.calls`
 - `nebulatrace.llm.tokens`
 - `nebulatrace.llm.hallucinations`
+- `nebulatrace.faas.triggered`
+- `nebulatrace.faas.failures`
+- `nebulatrace.faas.downstream.latency_ms`
 
 ## Local Verification
 
@@ -121,6 +134,7 @@ Useful runtime checks:
 
 ```bash
 kubectl -n nebulatrace logs deploy/load-generator -c load-generator --tail=50
+kubectl -n nebulatrace logs deploy/faas-trigger -c faas-trigger --tail=50
 kubectl -n dynatrace logs statefulset/nebulatrace-otel-collector --tail=80
 kubectl -n dynatrace logs daemonset/nebulatrace-logmonitoring --tail=80
 kubectl -n nebulatrace-data describe pod activemq-0
