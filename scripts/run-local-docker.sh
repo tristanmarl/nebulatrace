@@ -95,6 +95,12 @@ docker run -d --name nebulatrace-command-api --network nebulatrace \
   -e ORBIT_URL=http://orbit-ai:8080 \
   "${IMAGE_REGISTRY:-nebulatrace}/command-api:${IMAGE_TAG:-dev}" >/dev/null
 
+docker run -d --name nebulatrace-load-generator --network nebulatrace \
+  -e COMMAND_URL=http://command-api:8080 \
+  -e LOADGEN_DELAY_MS="${LOADGEN_DELAY_MS:-750}" \
+  -e LOADGEN_BURST="${LOADGEN_BURST:-1}" \
+  "${IMAGE_REGISTRY:-nebulatrace}/load-generator:${IMAGE_TAG:-dev}" >/dev/null
+
 docker run -d --name nebulatrace-bridge-ui --network nebulatrace \
   -p 18000:8080 \
   "${IMAGE_REGISTRY:-nebulatrace}/bridge-ui:${IMAGE_TAG:-dev}" >/dev/null

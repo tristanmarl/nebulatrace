@@ -13,6 +13,9 @@ data:
   ORBIT_URL: http://orbit-ai:8080
   LLM_URL: http://mock-llm:8080
   MAINTENANCE_URL: http://maintenance-api:8080
+  COMMAND_URL: http://command-api:8080
+  LOADGEN_DELAY_MS: "${LOADGEN_DELAY_MS}"
+  LOADGEN_BURST: "${LOADGEN_BURST}"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -368,3 +371,28 @@ spec:
     - name: http
       port: 8080
       targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: nebulatrace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+      annotations:
+        oneagent.dynatrace.com/inject: "true"
+        metadata.dynatrace.com/service: load-generator
+    spec:
+      containers:
+        - name: load-generator
+          image: ${IMAGE_REGISTRY}/load-generator:${IMAGE_TAG}
+          envFrom:
+            - configMapRef:
+                name: nebulatrace-config

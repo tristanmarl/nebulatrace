@@ -4,6 +4,7 @@ set -euo pipefail
 for container in \
   nebulatrace-bridge-ui \
   nebulatrace-command-api \
+  nebulatrace-load-generator \
   nebulatrace-cargo-api \
   nebulatrace-mission-api \
   nebulatrace-credits-api \

@@ -157,6 +157,27 @@ make entropy-ai-anomaly
 make reset
 ```
 
+## Constant Load
+
+The Kubernetes deploy includes `load-generator`, a small Python service that
+continuously calls `command-api` so Dynatrace always has fresh traffic, traces,
+logs, queue work, and database activity to observe.
+
+Tune it in `.env`:
+
+```bash
+LOADGEN_DELAY_MS=750
+LOADGEN_BURST=1
+```
+
+Useful controls:
+
+```bash
+kubectl -n nebulatrace logs deploy/load-generator -f
+kubectl -n nebulatrace scale deployment/load-generator --replicas=0
+kubectl -n nebulatrace scale deployment/load-generator --replicas=1
+```
+
 ## OTLP Auto-Configuration
 
 The app namespace is labeled `nebulatrace.dev/otel=true`. OpenTelemetry pods are
