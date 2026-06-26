@@ -15,7 +15,7 @@ flowchart LR
   API --> ORBIT[orbit-ai]
   CARGO --> PG[(PostgreSQL)]
   MISSION --> PG
-  MISSION --> MQ[(RabbitMQ)]
+  MISSION --> MQ[(ActiveMQ)]
   CREDITS --> REDIS[(Redis)]
   DRONE[drone-worker] --> MQ
   DRONE --> PG
@@ -30,11 +30,12 @@ flowchart LR
 | `bridge-ui` | React + NGINX | Starship console | OneAgent optional |
 | `command-api` | Node.js | API facade | OneAgent |
 | `cargo-api` | Java Spring Boot | Cargo inventory and slow SQL | OneAgent |
-| `mission-api` | Python FastAPI | Mission creation and RabbitMQ publish | OpenTelemetry |
+| `mission-api` | Python FastAPI | Mission creation and ActiveMQ publish | OpenTelemetry |
 | `credits-api` | Go | Fake credits authorization | OneAgent |
 | `drone-worker` | Python | Async job consumer | OpenTelemetry |
 | `maintenance-api` | Node.js | Repair status | OneAgent |
 | `orbit-ai` | Python FastAPI | AI mission recommendations | OpenTelemetry |
 | `mock-llm` | Python FastAPI | Local fake LLM | OpenTelemetry |
-PostgreSQL, RabbitMQ, and Redis live in `nebulatrace-data` without Istio
-sidecars. App workloads live in `nebulatrace` with Istio injection enabled.
+PostgreSQL, ActiveMQ Classic, and Redis live in `nebulatrace-data`; ActiveMQ is
+OneAgent-injected for JVM/JMX-style broker visibility. App workloads live in
+`nebulatrace` with Istio injection enabled.

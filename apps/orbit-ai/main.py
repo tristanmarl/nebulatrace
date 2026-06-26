@@ -4,6 +4,8 @@ import time
 import requests
 from fastapi import FastAPI
 from opentelemetry import metrics, trace
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
@@ -24,7 +26,11 @@ tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)
 tokens = meter.create_counter("nebulatrace.orbit.tokens")
 failures = meter.create_counter("nebulatrace.orbit.failures")
+recommendations = meter.create_counter("nebulatrace.orbit.recommendations")
+llm_latency = meter.create_histogram("nebulatrace.orbit.llm.latency_ms")
 app = FastAPI(title="orbit-ai")
+FastAPIInstrumentor.instrument_app(app)
+RequestsInstrumentor().instrument()
 
 LLM_URL = os.getenv("LLM_URL", "http://mock-llm:8080")
 
@@ -46,6 +52,8 @@ def recommend():
             data = res.json()
             output_tokens = int(data.get("tokens", 0))
             tokens.add(output_tokens, {"ai.model.name": "mock-nebula-llm"})
+            recommendations.add(1, {"ai.model.name": "mock-nebula-llm", "ai.response.status": "ok"})
+            llm_latency.record((time.time() - start) * 1000, {"ai.model.name": "mock-nebula-llm"})
             span.set_attribute("ai.tokens.input", len(prompt.split()))
             span.set_attribute("ai.tokens.output", output_tokens)
             span.set_attribute("ai.response.status", "ok")
@@ -53,6 +61,7 @@ def recommend():
             return data
         except Exception as exc:
             failures.add(1)
+            recommendations.add(1, {"ai.model.name": "mock-nebula-llm", "ai.response.status": "failed"})
             span.set_attribute("ai.response.status", "failed")
             span.record_exception(exc)
             return {"recommendation": "ORBIT is recalibrating the coffee synthesizer.", "error": str(exc)}

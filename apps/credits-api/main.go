@@ -21,7 +21,7 @@ func main() {
 		writeJSON(w, http.StatusOK, map[string]any{"ok": true, "service": "credits-api"})
 	})
 	mux.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
-		if os.Getenv("ENTROPY_MODE") == "credit-errors" && rand.Intn(100) < 70 {
+		if r.URL.Query().Get("force_error") == "true" || os.Getenv("ENTROPY_MODE") == "credit-errors" && rand.Intn(100) < 70 {
 			writeJSON(w, http.StatusInternalServerError, map[string]any{
 				"authorized": false,
 				"reason":     "unstable credits core",

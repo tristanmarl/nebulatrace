@@ -12,11 +12,13 @@ const urls = {
 async function getJson(url, options) {
   const res = await fetch(url, options);
   const body = await res.text();
+  let parsed;
   try {
-    return JSON.parse(body);
+    parsed = JSON.parse(body);
   } catch {
-    return { status: res.status, body };
+    parsed = { body };
   }
+  return { statusCode: res.status, body: parsed };
 }
 
 app.get("/healthz", async () => ({ ok: true, service: "command-api" }));
@@ -27,9 +29,16 @@ app.get("/api/status", async () => ({
   entropyDrive: process.env.ENTROPY_MODE || "stable"
 }));
 
-app.get("/api/cargo", async () => getJson(`${urls.cargo}/cargo`));
-app.get("/api/credits/authorize", async () => getJson(`${urls.credits}/authorize`));
-app.get("/api/orbit/recommend", async () => getJson(`${urls.orbit}/recommend`));
-app.post("/api/missions", async () => getJson(`${urls.mission}/missions`, { method: "POST" }));
+async function proxy(reply, call) {
+  const result = await call();
+  reply.code(result.statusCode);
+  return result.body;
+}
+
+app.get("/api/cargo", async (_request, reply) => proxy(reply, () => getJson(`${urls.cargo}/cargo`)));
+app.get("/api/credits/authorize", async (_request, reply) => proxy(reply, () => getJson(`${urls.credits}/authorize`)));
+app.get("/api/credits/fail", async (_request, reply) => proxy(reply, () => getJson(`${urls.credits}/authorize?force_error=true`)));
+app.get("/api/orbit/recommend", async (_request, reply) => proxy(reply, () => getJson(`${urls.orbit}/recommend`)));
+app.post("/api/missions", async (_request, reply) => proxy(reply, () => getJson(`${urls.mission}/missions`, { method: "POST" })));
 
 app.listen({ port, host: "0.0.0.0" });

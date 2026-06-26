@@ -16,7 +16,7 @@ make entropy-queue-backlog
 ```
 
 `drone-worker` sleeps before acknowledgements. Create several missions from the
-UI and watch RabbitMQ backlog and worker latency.
+UI and watch ActiveMQ backlog, broker JVM metrics, and worker latency.
 
 ## Credits Core Failure
 

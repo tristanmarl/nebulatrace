@@ -13,7 +13,7 @@ for container in \
   nebulatrace-mock-llm \
   nebulatrace-drone-worker \
   nebulatrace-postgres \
-  nebulatrace-rabbitmq \
+  nebulatrace-activemq \
   nebulatrace-redis
 do
   docker rm -f "$container" >/dev/null 2>&1 || true

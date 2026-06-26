@@ -5,7 +5,11 @@ metadata:
   namespace: nebulatrace
 data:
   DATABASE_URL: postgresql://nebulatrace:nebulatrace@postgres.nebulatrace-data:5432/nebulatrace
-  RABBITMQ_URL: amqp://nebulatrace:nebulatrace@rabbitmq.nebulatrace-data:5672/
+  ACTIVEMQ_HOST: activemq.nebulatrace-data
+  ACTIVEMQ_STOMP_PORT: "61613"
+  ACTIVEMQ_USER: admin
+  ACTIVEMQ_PASSWORD: admin
+  DRONE_QUEUE: /queue/drone.jobs
   REDIS_URL: redis://redis.nebulatrace-data:6379
   CARGO_URL: http://cargo-api:8080
   MISSION_URL: http://mission-api:8080

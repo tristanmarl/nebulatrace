@@ -10,11 +10,11 @@ anomalies.
 
 - Kubernetes multi-service application
 - Istio ingress, mesh traffic, routing, and fault injection
-- PostgreSQL, RabbitMQ, and Redis dependencies
+- PostgreSQL, ActiveMQ Classic, and Redis dependencies
 - Dynatrace Operator and OneAgent-monitored workloads
 - OpenTelemetry workloads using Dynatrace Operator OTLP auto-configuration
-- Newer Istio service detection direction through propagated trace context and
-  Unified services / SDv2, with supplemental Envoy/Istio metrics
+- Istio service detection through propagated trace context, Envoy OTLP tracing,
+  and Unified services / SDv2, with supplemental Envoy/Istio metrics
 - AI incident investigation prompts for `dynatrace-for-ai`
 
 ## Quick Start
@@ -50,7 +50,8 @@ make app-url
 ```
 
 This builds images as `nebulatrace/<service>:dev`, imports them into k3s
-containerd, installs Istio, and deploys the app.
+containerd, installs Istio with a Dynatrace OTLP tracing provider, and deploys
+the app.
 
 Dynatrace is optional for this local smoke test. To include Dynatrace, create
 `.env` from `.env.example`, set `DT_TENANT_URL` and `DT_API_TOKEN`, then run:
@@ -211,9 +212,60 @@ Dynatrace Operator injects OTLP endpoints, headers, token access, and Kubernetes
 resource attributes into those pods. Application code only uses standard OTel
 environment variables.
 
+## Trace Stitching And Metrics
+
+The OTel Python services use FastAPI and HTTP client instrumentation so incoming
+`traceparent` headers from OneAgent/Istio are extracted and outgoing calls
+continue the same distributed trace. The ActiveMQ path carries W3C trace context
+in STOMP headers, so mission creation should stitch as:
+
+```text
+command-api -> mission-api -> ActiveMQ drone.jobs -> drone-worker -> maintenance-api
+```
+
+Custom metrics include:
+
+```text
+nebulatrace.missions.created
+nebulatrace.missions.failures
+nebulatrace.missions.db.latency_ms
+nebulatrace.missions.activemq.publish.latency_ms
+nebulatrace.missions.activemq.published
+nebulatrace.drone.jobs.consumed
+nebulatrace.drone.jobs.failed
+nebulatrace.drone.job.latency_ms
+nebulatrace.drone.maintenance.latency_ms
+nebulatrace.orbit.recommendations
+nebulatrace.orbit.llm.latency_ms
+nebulatrace.llm.calls
+nebulatrace.llm.tokens
+nebulatrace.llm.hallucinations
+```
+
+## ActiveMQ
+
+NebulaTrace uses ActiveMQ Classic for async drone jobs. The `activemq` broker
+runs in `nebulatrace-data` with OneAgent injection enabled, which makes it a JVM
+workload suitable for Dynatrace's Apache ActiveMQ Classic/JMX extension. Enable
+the extension in Dynatrace for broker-level queue, enqueue/dequeue, consumer,
+and memory metrics.
+
+The producer and worker also emit OpenTelemetry messaging spans with:
+
+```text
+messaging.system=activemq
+messaging.destination.name=drone.jobs
+messaging.operation=publish|consume
+```
+
 ## Newer Istio Method
 
-NebulaTrace does not use Classic Istio monitoring as the primary story. App
-spans from OneAgent and OpenTelemetry carry trace context through the mesh and
-are modeled as Dynatrace services, including Unified services / SDv2 for
-OTel-ingested workloads. Envoy/Istio metric scraping is supplemental.
+NebulaTrace does not use Classic Istio monitoring as the primary story. Istio is
+installed with an OpenTelemetry extension provider named `dynatrace-otel`.
+Envoy sends mesh spans to `otel-collector.nebulatrace.svc.cluster.local:4317`,
+and that collector exports to Dynatrace using Operator-injected OTLP
+configuration.
+
+App spans from OneAgent and OpenTelemetry still carry trace context through the
+mesh and are modeled as Dynatrace services, including Unified services / SDv2
+for OTel-ingested workloads. Envoy/Istio metric scraping is supplemental.

@@ -14,6 +14,8 @@ COMMANDS = [
     ("status", "GET", "/api/status", None, 2),
     ("cargo", "GET", "/api/cargo", None, 2),
     ("credits", "GET", "/api/credits/authorize", None, 2),
+    ("credits-fail", "GET", "/api/credits/fail", None, 1),
+    ("not-found", "GET", "/api/wormhole/missing-sector", None, 1),
     ("orbit", "GET", "/api/orbit/recommend", None, 3),
     (
         "mission",

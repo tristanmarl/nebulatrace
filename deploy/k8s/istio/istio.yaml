@@ -76,6 +76,10 @@ metadata:
   name: nebulatrace-default
   namespace: nebulatrace
 spec:
+  tracing:
+    - providers:
+        - name: dynatrace-otel
+      randomSamplingPercentage: 100
   accessLogging:
     - providers:
         - name: envoy

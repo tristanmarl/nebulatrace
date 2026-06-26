@@ -23,11 +23,9 @@ docker run -d --name nebulatrace-postgres --network nebulatrace \
   -v /tmp/nebulatrace-init.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro \
   postgres:16-alpine >/dev/null
 
-docker run -d --name nebulatrace-rabbitmq --network nebulatrace \
-  --network-alias rabbitmq \
-  -e RABBITMQ_DEFAULT_USER=nebulatrace \
-  -e RABBITMQ_DEFAULT_PASS=nebulatrace \
-  rabbitmq:3.13-management >/dev/null
+docker run -d --name nebulatrace-activemq --network nebulatrace \
+  --network-alias activemq \
+  apache/activemq-classic:6.1.7 >/dev/null
 
 docker run -d --name nebulatrace-redis --network nebulatrace \
   --network-alias redis \
@@ -39,7 +37,7 @@ for _ in $(seq 1 40); do
 done
 
 for _ in $(seq 1 60); do
-  docker exec nebulatrace-rabbitmq rabbitmq-diagnostics -q ping >/dev/null 2>&1 && break
+  docker exec nebulatrace-activemq bash -lc 'test -S /tmp/activemq/activemq.pid || pgrep -f activemq' >/dev/null 2>&1 && break
   sleep 1
 done
 
@@ -76,14 +74,16 @@ docker run -d --name nebulatrace-mission-api --network nebulatrace \
   --network-alias mission-api \
   "${otel_env[@]}" \
   -e DATABASE_URL=postgresql://nebulatrace:nebulatrace@postgres:5432/nebulatrace \
-  -e RABBITMQ_URL=amqp://nebulatrace:nebulatrace@rabbitmq:5672/ \
+  -e ACTIVEMQ_HOST=activemq \
+  -e ACTIVEMQ_STOMP_PORT=61613 \
   "${IMAGE_REGISTRY:-nebulatrace}/mission-api:${IMAGE_TAG:-dev}" >/dev/null
 
 docker run -d --name nebulatrace-drone-worker --network nebulatrace \
   --network-alias drone-worker \
   "${otel_env[@]}" \
   -e DATABASE_URL=postgresql://nebulatrace:nebulatrace@postgres:5432/nebulatrace \
-  -e RABBITMQ_URL=amqp://nebulatrace:nebulatrace@rabbitmq:5672/ \
+  -e ACTIVEMQ_HOST=activemq \
+  -e ACTIVEMQ_STOMP_PORT=61613 \
   -e MAINTENANCE_URL=http://maintenance-api:8080 \
   "${IMAGE_REGISTRY:-nebulatrace}/drone-worker:${IMAGE_TAG:-dev}" >/dev/null
 
