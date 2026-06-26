@@ -16,9 +16,8 @@ DT_API_URL="${DT_API_URL/.apps./.}"
 export DT_API_URL
 
 kubectl apply -f deploy/k8s/namespaces.yaml
-helm repo add dynatrace https://raw.githubusercontent.com/Dynatrace/dynatrace-operator/main/config/helm/repos/stable
-helm repo update dynatrace
-helm upgrade --install dynatrace-operator dynatrace/dynatrace-operator \
+helm upgrade --install dynatrace-operator oci://public.ecr.aws/dynatrace/dynatrace-operator \
+  --version 1.10.0-rc.0 \
   --namespace dynatrace \
   --create-namespace \
   --atomic
