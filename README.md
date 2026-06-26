@@ -76,6 +76,15 @@ For this DynaKube profile, the Access Token must include at least:
 The Operator may also warn about optional `settings.read` and `settings.write`
 scopes.
 
+Useful Operator checks:
+
+```bash
+kubectl get dynakubes -n dynatrace
+kubectl exec deploy/dynatrace-operator -n dynatrace -- dynatrace-operator troubleshoot
+kubectl -n dynatrace describe dynakube nebulatrace
+kubectl -n dynatrace logs deploy/dynatrace-operator --tail=200
+```
+
 ### Registry-backed cluster
 
 ```bash
