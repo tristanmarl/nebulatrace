@@ -32,6 +32,9 @@ spec:
           image: postgres:16-alpine
           ports:
             - containerPort: 5432
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           envFrom:
             - secretRef:
                 name: data-secrets
@@ -94,6 +97,9 @@ spec:
               containerPort: 61613
             - name: web
               containerPort: 8161
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           volumeMounts:
             - name: activemq-data
               mountPath: /opt/apache-activemq/data
@@ -145,6 +151,9 @@ spec:
           image: redis:7-alpine
           ports:
             - containerPort: 6379
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
 ---
 apiVersion: v1
 kind: Service

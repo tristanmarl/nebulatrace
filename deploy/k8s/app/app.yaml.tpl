@@ -45,6 +45,9 @@ spec:
       containers:
         - name: bridge-ui
           image: ${IMAGE_REGISTRY}/bridge-ui:${IMAGE_TAG}
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           ports:
             - containerPort: 8080
 ---
@@ -84,6 +87,9 @@ spec:
           image: ${IMAGE_REGISTRY}/command-api:${IMAGE_TAG}
           ports:
             - containerPort: 8080
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -133,6 +139,8 @@ spec:
               value: nebulatrace
             - name: ENTROPY_MODE
               value: stable
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
 ---
 apiVersion: v1
 kind: Service
@@ -180,6 +188,8 @@ spec:
                   key: REDIS_URL
             - name: ENTROPY_MODE
               value: stable
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
 ---
 apiVersion: v1
 kind: Service
@@ -215,6 +225,9 @@ spec:
       containers:
         - name: maintenance-api
           image: ${IMAGE_REGISTRY}/maintenance-api:${IMAGE_TAG}
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           ports:
             - containerPort: 8080
 ---
@@ -254,6 +267,9 @@ spec:
           image: ${IMAGE_REGISTRY}/mission-api:${IMAGE_TAG}
           ports:
             - containerPort: 8080
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -295,6 +311,8 @@ spec:
           env:
             - name: ENTROPY_MODE
               value: stable
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -322,6 +340,9 @@ spec:
           image: ${IMAGE_REGISTRY}/orbit-ai:${IMAGE_TAG}
           ports:
             - containerPort: 8080
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -365,6 +386,8 @@ spec:
           env:
             - name: ENTROPY_MODE
               value: stable
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
 ---
 apiVersion: v1
 kind: Service
@@ -400,6 +423,9 @@ spec:
       containers:
         - name: load-generator
           image: ${IMAGE_REGISTRY}/load-generator:${IMAGE_TAG}
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -426,6 +452,9 @@ spec:
         - name: faas-trigger
           image: ${IMAGE_REGISTRY}/faas-trigger:${IMAGE_TAG}
           imagePullPolicy: IfNotPresent
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "${OTEL_RESOURCE_ATTRIBUTES}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config

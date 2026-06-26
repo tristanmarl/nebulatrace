@@ -65,6 +65,9 @@ The demo should show:
 - Standalone Log Agent is enabled with `spec.logMonitoring`.
 - OTel workloads rely on Dynatrace Operator OTLP auto-configuration.
 - Do not hardcode OTLP endpoints or tokens in application code.
+- Shared release/environment context is a plain comma-separated
+  `OTEL_RESOURCE_ATTRIBUTES` value from `.env`, passed to every container
+  without mapping logic. Do not set `service.name` in this shared value.
 - Istio traces use an OpenTelemetry extension provider that sends Envoy spans to
   the Dynatrace Operator telemetry ingest service:
   `nebulatrace-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces`.

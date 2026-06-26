@@ -238,6 +238,22 @@ Dynatrace Operator injects OTLP endpoints, headers, token access, and Kubernetes
 resource attributes into those pods. Application code only uses standard OTel
 environment variables.
 
+## Environment And Version Attributes
+
+All demo containers set `OTEL_RESOURCE_ATTRIBUTES` explicitly so OneAgent and
+OpenTelemetry workloads get the same release context. Configure the exact
+comma-separated key/value list in `.env`:
+
+```bash
+OTEL_RESOURCE_ATTRIBUTES=deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0
+```
+
+The Dynatrace Operator OTLP auto-configuration preserves these attributes and
+adds its own Kubernetes/Dynatrace resource attributes to OTel pods. Avoid
+putting `service.name` in this shared list; service naming is handled per
+workload through `metadata.dynatrace.com/service` and each service's OTel
+resource configuration.
+
 ## Trace Stitching And Metrics
 
 The OTel Python services use FastAPI and HTTP client instrumentation so incoming
