@@ -9,6 +9,8 @@ if [[ "${DT_API_TOKEN:-}" == dt0s16* ]]; then
   exit 1
 fi
 
+export DT_DATA_INGEST_TOKEN="${DT_DATA_INGEST_TOKEN:-$DT_API_TOKEN}"
+
 DT_API_URL="${DT_TENANT_URL%/}"
 DT_API_URL="${DT_API_URL/.apps./.}"
 export DT_API_URL

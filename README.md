@@ -67,11 +67,18 @@ for the Operator API URL.
 Token. A token starting with `dt0s16` is a Platform Token and the Operator will
 report `Token does not exist` against the environment API.
 
-For this DynaKube profile, the Access Token must include at least:
+For this DynaKube profile, `DT_API_TOKEN` must include at least:
 
 - `DataExport`
 - `activeGateTokenManagement.create`
 - `InstallerDownload`
+
+`DT_DATA_INGEST_TOKEN` is optional. If omitted, `DT_API_TOKEN` is reused. If you
+provide a separate ingest token, it must include:
+
+- `openTelemetryTrace.ingest`
+- `logs.ingest`
+- `metrics.ingest`
 
 The Operator may also warn about optional `settings.read` and `settings.write`
 scopes.

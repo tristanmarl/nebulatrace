@@ -6,7 +6,7 @@ metadata:
 type: Opaque
 stringData:
   apiToken: "${DT_API_TOKEN}"
-  dataIngestToken: "${DT_API_TOKEN}"
+  dataIngestToken: "${DT_DATA_INGEST_TOKEN}"
 ---
 apiVersion: dynatrace.com/v1beta6
 kind: DynaKube
