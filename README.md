@@ -46,11 +46,11 @@ If your cluster already has Istio and a healthy Dynatrace Operator/DynaKube,
 install only the NebulaTrace app, data stores, and Istio routing with:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/tristanmarl/nebulatrace/main/deploy/dist/nebulatrace.yaml
+kubectl apply -f https://raw.githubusercontent.com/YOUR_GITHUB_OWNER/nebulatrace/main/deploy/dist/nebulatrace.yaml
 ```
 
 This manifest uses public GHCR image references such as
-`ghcr.io/tristanmarl/nebulatrace/command-api:latest`. The GHCR packages must be
+`ghcr.io/example-org/nebulatrace/command-api:latest`. The GHCR packages must be
 public, or your cluster needs an image pull secret.
 
 To regenerate the committed default manifest:
@@ -111,7 +111,7 @@ This creates the Operator-managed telemetry ingest service that Envoy sends
 OTLP/HTTP traces to:
 
 ```text
-aws-appmon-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces
+nebulatrace-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces
 ```
 
 The demo pins the telemetry ingest collector image with:
@@ -146,7 +146,7 @@ Useful Operator checks:
 ```bash
 kubectl get dynakubes -n dynatrace
 kubectl exec deploy/dynatrace-operator -n dynatrace -- dynatrace-operator troubleshoot
-kubectl -n dynatrace describe dynakube aws-appmon
+kubectl -n dynatrace describe dynakube nebulatrace
 kubectl -n dynatrace logs deploy/dynatrace-operator --tail=200
 ```
 
@@ -171,29 +171,29 @@ running `make push-images`.
 For GitHub Container Registry, use this in `.env`:
 
 ```bash
-IMAGE_REGISTRY=ghcr.io/tristanmarl/nebulatrace
+IMAGE_REGISTRY=ghcr.io/example-org/nebulatrace
 IMAGE_TAG=latest
 ```
 
 The build creates one image per service, for example:
 
 ```text
-ghcr.io/tristanmarl/nebulatrace/bridge-ui:latest
-ghcr.io/tristanmarl/nebulatrace/command-api:latest
-ghcr.io/tristanmarl/nebulatrace/cargo-api:latest
+ghcr.io/example-org/nebulatrace/bridge-ui:latest
+ghcr.io/example-org/nebulatrace/command-api:latest
+ghcr.io/example-org/nebulatrace/cargo-api:latest
 ```
 
 Before pushing from your machine, log Docker into GHCR:
 
 ```bash
-gh auth token | docker login ghcr.io -u tristanmarl --password-stdin
+gh auth token | docker login ghcr.io -u YOUR_GITHUB_OWNER --password-stdin
 ```
 
 Your GitHub token must be allowed to write packages. If `docker push` returns a
 permission error, create a GitHub token with `write:packages` and run:
 
 ```bash
-echo "YOUR_TOKEN" | docker login ghcr.io -u tristanmarl --password-stdin
+echo "YOUR_TOKEN" | docker login ghcr.io -u YOUR_GITHUB_OWNER --password-stdin
 ```
 
 GitHub repository visibility and GHCR package visibility are separate. If the
@@ -203,7 +203,7 @@ If the packages are private, create an image pull secret in the app namespace:
 ```bash
 kubectl -n nebulatrace create secret docker-registry ghcr-pull \
   --docker-server=ghcr.io \
-  --docker-username=tristanmarl \
+  --docker-username=YOUR_GITHUB_OWNER \
   --docker-password="$GHCR_TOKEN"
 ```
 
@@ -372,7 +372,7 @@ messaging.operation=publish|consume
 NebulaTrace does not use Classic Istio monitoring as the primary story. Istio is
 installed with an OpenTelemetry extension provider named `dynatrace-otel`.
 Envoy sends mesh spans directly to the Dynatrace Operator telemetry ingest
-service at `${DYNAKUBE_NAME:-aws-appmon}-telemetry-ingest.dynatrace.svc.cluster.local:4318` with
+service at `${DYNAKUBE_NAME:-nebulatrace}-telemetry-ingest.dynatrace.svc.cluster.local:4318` with
 HTTP path `/v1/traces` and Dynatrace resource detection enabled.
 
 App spans from OneAgent and OpenTelemetry still carry trace context through the

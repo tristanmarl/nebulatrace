@@ -25,7 +25,7 @@ if [[ "${DT_API_TOKEN:-}" == dt0s16* ]]; then
 fi
 
 export DT_DATA_INGEST_TOKEN="${DT_DATA_INGEST_TOKEN:-$DT_API_TOKEN}"
-export DYNAKUBE_NAME="${DYNAKUBE_NAME:-aws-appmon}"
+export DYNAKUBE_NAME="${DYNAKUBE_NAME:-nebulatrace}"
 export ACTIVEGATE_IMAGE="${ACTIVEGATE_IMAGE:-docker.io/dynatrace/dynatrace-activegate:1.339.39.20260605-153224}"
 export LOGMONITORING_IMAGE_REPOSITORY="${LOGMONITORING_IMAGE_REPOSITORY:-public.ecr.aws/dynatrace/dynatrace-logmodule}"
 export LOGMONITORING_IMAGE_TAG="${LOGMONITORING_IMAGE_TAG:-1.339.51.20260603-143443}"

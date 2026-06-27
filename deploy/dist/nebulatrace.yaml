@@ -2,7 +2,7 @@
 # Prerequisites:
 # - Dynatrace Operator and a healthy DynaKube already installed.
 # - Istio already installed. The nebulatrace namespace enables sidecar injection.
-# - Public container images under ghcr.io/tristanmarl/nebulatrace.
+# - Public container images under your configured IMAGE_REGISTRY.
 # - A default StorageClass for PostgreSQL and ActiveMQ PVCs.
 apiVersion: v1
 kind: Namespace
@@ -305,7 +305,7 @@ spec:
     spec:
       containers:
         - name: bridge-ui
-          image: ghcr.io/tristanmarl/nebulatrace/bridge-ui:latest
+          image: ghcr.io/example-org/nebulatrace/bridge-ui:latest
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
@@ -345,7 +345,7 @@ spec:
     spec:
       containers:
         - name: command-api
-          image: ghcr.io/tristanmarl/nebulatrace/command-api:latest
+          image: ghcr.io/example-org/nebulatrace/command-api:latest
           ports:
             - containerPort: 8080
           env:
@@ -388,7 +388,7 @@ spec:
     spec:
       containers:
         - name: cargo-api
-          image: ghcr.io/tristanmarl/nebulatrace/cargo-api:latest
+          image: ghcr.io/example-org/nebulatrace/cargo-api:latest
           ports:
             - containerPort: 8080
           env:
@@ -438,7 +438,7 @@ spec:
     spec:
       containers:
         - name: credits-api
-          image: ghcr.io/tristanmarl/nebulatrace/credits-api:latest
+          image: ghcr.io/example-org/nebulatrace/credits-api:latest
           ports:
             - containerPort: 8080
           env:
@@ -485,7 +485,7 @@ spec:
     spec:
       containers:
         - name: maintenance-api
-          image: ghcr.io/tristanmarl/nebulatrace/maintenance-api:latest
+          image: ghcr.io/example-org/nebulatrace/maintenance-api:latest
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
@@ -525,7 +525,7 @@ spec:
     spec:
       containers:
         - name: mission-api
-          image: ghcr.io/tristanmarl/nebulatrace/mission-api:latest
+          image: ghcr.io/example-org/nebulatrace/mission-api:latest
           ports:
             - containerPort: 8080
           env:
@@ -568,7 +568,7 @@ spec:
     spec:
       containers:
         - name: drone-worker
-          image: ghcr.io/tristanmarl/nebulatrace/drone-worker:latest
+          image: ghcr.io/example-org/nebulatrace/drone-worker:latest
           env:
             - name: ENTROPY_MODE
               value: stable
@@ -598,7 +598,7 @@ spec:
     spec:
       containers:
         - name: orbit-ai
-          image: ghcr.io/tristanmarl/nebulatrace/orbit-ai:latest
+          image: ghcr.io/example-org/nebulatrace/orbit-ai:latest
           ports:
             - containerPort: 8080
           env:
@@ -641,7 +641,7 @@ spec:
     spec:
       containers:
         - name: mock-llm
-          image: ghcr.io/tristanmarl/nebulatrace/mock-llm:latest
+          image: ghcr.io/example-org/nebulatrace/mock-llm:latest
           ports:
             - containerPort: 8080
           env:
@@ -683,7 +683,7 @@ spec:
     spec:
       containers:
         - name: load-generator
-          image: ghcr.io/tristanmarl/nebulatrace/load-generator:latest
+          image: ghcr.io/example-org/nebulatrace/load-generator:latest
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
@@ -711,7 +711,7 @@ spec:
     spec:
       containers:
         - name: faas-trigger
-          image: ghcr.io/tristanmarl/nebulatrace/faas-trigger:latest
+          image: ghcr.io/example-org/nebulatrace/faas-trigger:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
@@ -740,7 +740,7 @@ spec:
     spec:
       containers:
         - name: rpc-target
-          image: ghcr.io/tristanmarl/nebulatrace/rpc-target:latest
+          image: ghcr.io/example-org/nebulatrace/rpc-target:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 50051
@@ -781,7 +781,7 @@ spec:
     spec:
       containers:
         - name: rpc-probe
-          image: ghcr.io/tristanmarl/nebulatrace/rpc-probe:latest
+          image: ghcr.io/example-org/nebulatrace/rpc-probe:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
