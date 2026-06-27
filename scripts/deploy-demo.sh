@@ -26,6 +26,7 @@ fi
 export IMAGE_REGISTRY="${IMAGE_REGISTRY:-nebulatrace}"
 export IMAGE_TAG="${IMAGE_TAG:-dev}"
 export OTEL_RESOURCE_ATTRIBUTES="${OTEL_RESOURCE_ATTRIBUTES:-deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring}"
+export DT_CUSTOM_PROP="${DT_CUSTOM_PROP:-dt.owner=service-monitoring}"
 export LOADGEN_DELAY_MS="${LOADGEN_DELAY_MS:-750}"
 export LOADGEN_BURST="${LOADGEN_BURST:-1}"
 export FAAS_TRIGGER_DELAY_MS="${FAAS_TRIGGER_DELAY_MS:-5000}"

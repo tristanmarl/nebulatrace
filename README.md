@@ -175,10 +175,17 @@ make stop
 make start
 ./scripts/set-resource-attributes.sh --show
 ./scripts/set-resource-attributes.sh "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.1,primary_tags.version=0.1.1,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+make set-owner OWNER=service-monitoring
 ```
 
 `stop` and `start` only scale NebulaTrace app/data workloads. They leave
 Dynatrace Operator, ActiveGate, Log Agent, OTel collector, and Istio running.
+
+For process/process-group ownership, the demo sets
+`DT_CUSTOM_PROP=dt.owner=<team-identifier>` on workloads. The team identifier
+must match a team configured in Dynatrace Ownership. `OTEL_RESOURCE_ATTRIBUTES`
+still includes `dt.owner` so OpenTelemetry signals carry the same ownership
+context.
 
 ## Using GHCR
 

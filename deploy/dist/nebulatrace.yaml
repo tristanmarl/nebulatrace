@@ -125,6 +125,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           envFrom:
             - secretRef:
                 name: data-secrets
@@ -190,6 +192,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           volumeMounts:
             - name: activemq-data
               mountPath: /opt/apache-activemq/data
@@ -244,6 +248,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
 ---
 apiVersion: v1
 kind: Service
@@ -309,6 +315,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           ports:
             - containerPort: 8080
 ---
@@ -351,6 +359,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -402,6 +412,8 @@ spec:
               value: stable
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
 ---
 apiVersion: v1
 kind: Service
@@ -451,6 +463,8 @@ spec:
               value: stable
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
 ---
 apiVersion: v1
 kind: Service
@@ -489,6 +503,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           ports:
             - containerPort: 8080
 ---
@@ -531,6 +547,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -574,6 +592,8 @@ spec:
               value: stable
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -604,6 +624,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -649,6 +671,8 @@ spec:
               value: stable
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
 ---
 apiVersion: v1
 kind: Service
@@ -687,6 +711,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -716,6 +742,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -747,6 +775,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
 ---
 apiVersion: v1
 kind: Service
@@ -786,6 +816,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+            - name: DT_CUSTOM_PROP
+              value: "dt.owner=service-monitoring"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config

@@ -50,6 +50,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           ports:
             - containerPort: 8080
 ---
@@ -92,6 +94,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -143,6 +147,8 @@ spec:
               value: stable
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
 ---
 apiVersion: v1
 kind: Service
@@ -192,6 +198,8 @@ spec:
               value: stable
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
 ---
 apiVersion: v1
 kind: Service
@@ -230,6 +238,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           ports:
             - containerPort: 8080
 ---
@@ -272,6 +282,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -315,6 +327,8 @@ spec:
               value: stable
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -345,6 +359,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -390,6 +406,8 @@ spec:
               value: stable
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
 ---
 apiVersion: v1
 kind: Service
@@ -428,6 +446,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -457,6 +477,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config
@@ -488,6 +510,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
 ---
 apiVersion: v1
 kind: Service
@@ -527,6 +551,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           envFrom:
             - configMapRef:
                 name: nebulatrace-config

@@ -7,7 +7,7 @@ IMAGE_TAG ?= dev
 
 SERVICES := bridge-ui command-api cargo-api mission-api credits-api drone-worker maintenance-api orbit-ai mock-llm load-generator faas-trigger rpc-target rpc-probe
 
-.PHONY: build-images build test run-local stop-local push-images k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url status restart start stop reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
+.PHONY: build-images build test run-local stop-local push-images k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url status restart start stop set-owner reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
 
 build-images:
 	@for service in $(SERVICES); do docker build -t $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG) apps/$$service; done
@@ -58,6 +58,10 @@ start:
 
 stop:
 	./scripts/scale-demo.sh stop
+
+set-owner:
+	@test -n "$(OWNER)" || (echo "Usage: make set-owner OWNER=service-monitoring"; exit 1)
+	./scripts/set-owner.sh "$(OWNER)"
 
 reset:
 	./scripts/reset-demo.sh

@@ -35,6 +35,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           envFrom:
             - secretRef:
                 name: data-secrets
@@ -100,6 +102,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
           volumeMounts:
             - name: activemq-data
               mountPath: /opt/apache-activemq/data
@@ -154,6 +158,8 @@ spec:
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "${OTEL_RESOURCE_ATTRIBUTES}"
+            - name: DT_CUSTOM_PROP
+              value: "${DT_CUSTOM_PROP}"
 ---
 apiVersion: v1
 kind: Service
