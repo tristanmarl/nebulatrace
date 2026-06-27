@@ -57,6 +57,8 @@ class DroneListener(stomp.ConnectionListener):
             span.set_attribute("mission.id", mission_id)
             if os.getenv("ENTROPY_MODE") == "queue-backlog":
                 time.sleep(3)
+            if os.getenv("ENTROPY_MODE") == "job-failures":
+                raise Exception("drone system failure — maintenance systems offline")
             try:
                 maintenance_started = time.time()
                 requests.post(f"{MAINTENANCE_URL}/repairs", json={"mission_id": mission_id}, timeout=2)

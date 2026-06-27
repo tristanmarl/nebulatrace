@@ -3,6 +3,8 @@ import os
 import time
 import uuid
 
+from fastapi import HTTPException
+
 import psycopg
 import stomp
 from fastapi import FastAPI
@@ -49,6 +51,9 @@ def healthz():
 
 @app.post("/missions")
 def create_mission():
+    if os.getenv("ENTROPY_MODE") == "mission-errors":
+        mission_failures.add(1, {"failure.stage": "entropy"})
+        raise HTTPException(status_code=503, detail="mission command systems offline")
     mission_id = f"mission-{uuid.uuid4().hex[:8]}"
     with tracer.start_as_current_span("mission.create") as span:
         span.set_attribute("mission.id", mission_id)
