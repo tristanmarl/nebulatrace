@@ -11,6 +11,7 @@ const urls = {
 };
 
 const NS = "nebulatrace";
+const DATA_NS = "nebulatrace-data";
 const STRATEGIC = { headers: { "Content-Type": "application/strategic-merge-patch+json" } };
 const MERGE = { headers: { "Content-Type": "application/merge-patch+json" } };
 
@@ -19,19 +20,39 @@ try { kc.loadFromCluster(); } catch { kc.loadFromDefault(); }
 const appsApi = kc.makeApiClient(k8s.AppsV1Api);
 const customApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
-function envPatch(containerName, envValue) {
+function envPatch(containerName, envName, envValue) {
   return {
     spec: {
       template: {
         metadata: { annotations: { "kubectl.kubernetes.io/restartedAt": new Date().toISOString() } },
-        spec: { containers: [{ name: containerName, env: [{ name: "ENTROPY_MODE", value: envValue }] }] }
+        spec: { containers: [{ name: containerName, env: [{ name: envName, value: envValue }] }] }
       }
     }
   };
 }
 
+async function setOtelAttrsOnAll(attrs) {
+  const [appDeploys, dataDeploys, dataSts] = await Promise.all([
+    appsApi.listNamespacedDeployment(NS).then(r => r.body.items),
+    appsApi.listNamespacedDeployment(DATA_NS).then(r => r.body.items),
+    appsApi.listNamespacedStatefulSet(DATA_NS).then(r => r.body.items),
+  ]);
+  const patch = (name) => envPatch(name, "OTEL_RESOURCE_ATTRIBUTES", attrs);
+  await Promise.all([
+    ...appDeploys.map(d => appsApi.patchNamespacedDeployment(
+      d.metadata.name, NS, patch(d.spec.template.spec.containers[0].name),
+      undefined, undefined, undefined, undefined, undefined, STRATEGIC)),
+    ...dataDeploys.map(d => appsApi.patchNamespacedDeployment(
+      d.metadata.name, DATA_NS, patch(d.spec.template.spec.containers[0].name),
+      undefined, undefined, undefined, undefined, undefined, STRATEGIC)),
+    ...dataSts.map(s => appsApi.patchNamespacedStatefulSet(
+      s.metadata.name, DATA_NS, patch(s.spec.template.spec.containers[0].name),
+      undefined, undefined, undefined, undefined, undefined, STRATEGIC)),
+  ]);
+}
+
 async function patchDeployment(name, envValue) {
-  await appsApi.patchNamespacedDeployment(name, NS, envPatch(name, envValue),
+  await appsApi.patchNamespacedDeployment(name, NS, envPatch(name, "ENTROPY_MODE", envValue),
     undefined, undefined, undefined, undefined, undefined, STRATEGIC);
 }
 
@@ -123,6 +144,23 @@ app.post("/api/entropy/:mode", async (request, reply) => {
   try {
     await handler();
     return { ok: true, mode };
+  } catch (err) {
+    reply.code(500);
+    return { error: err.message };
+  }
+});
+
+app.get("/api/resource-attrs", async () => ({ attrs: process.env.OTEL_RESOURCE_ATTRIBUTES || "" }));
+
+app.post("/api/resource-attrs", async (request, reply) => {
+  const { attrs } = request.body || {};
+  if (!attrs || typeof attrs !== "string") {
+    reply.code(400);
+    return { error: "attrs must be a non-empty string" };
+  }
+  try {
+    await setOtelAttrsOnAll(attrs.trim());
+    return { ok: true, attrs: attrs.trim() };
   } catch (err) {
     reply.code(500);
     return { error: err.message };

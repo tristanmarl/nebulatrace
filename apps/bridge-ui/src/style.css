@@ -218,6 +218,48 @@ h1 {
   border: 1px solid #21262d;
 }
 
+/* ── OTEL Config ── */
+
+.otel-row {
+  display: flex;
+  gap: 10px;
+}
+
+.otel-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #e6edf3;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+}
+
+.otel-input:focus {
+  outline: none;
+  border-color: #58a6ff;
+}
+
+.otel-input::placeholder { color: #484f58; }
+.otel-input:disabled { opacity: 0.5; }
+
+.otel-apply-btn {
+  padding: 8px 16px;
+  background: #1f6feb;
+  border: 1px solid #388bfd;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.otel-apply-btn:hover:not(:disabled) { background: #388bfd; }
+.otel-apply-btn:disabled { opacity: 0.45; cursor: default; }
+
 /* ── Response panel ── */
 
 .status-code {

@@ -96,6 +96,8 @@ function App() {
   const [activeMode, setActiveMode] = useState(null);
   const [pending, setPending] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [otelAttrs, setOtelAttrs] = useState("");
+  const [otelPending, setOtelPending] = useState(false);
 
   async function callApi(path, method = "GET") {
     setLoading(true);
@@ -120,11 +122,24 @@ function App() {
   }
 
   useEffect(() => {
-    fetch(`${api}/status`)
-      .then(r => r.json())
-      .then(setStatus)
-      .catch(() => setStatus({ error: "offline" }));
+    fetch(`${api}/status`).then(r => r.json()).then(setStatus).catch(() => setStatus({ error: "offline" }));
+    fetch(`${api}/resource-attrs`).then(r => r.json()).then(d => setOtelAttrs(d.attrs || "")).catch(() => {});
   }, []);
+
+  async function applyOtelAttrs() {
+    setOtelPending(true);
+    try {
+      const res = await fetch(`${api}/resource-attrs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attrs: otelAttrs }),
+      });
+      const body = await res.json();
+      setResult({ path: "/api/resource-attrs", status: res.status, body });
+    } finally {
+      setOtelPending(false);
+    }
+  }
 
   const activeFault = FAULTS.find(f => f.mode === activeMode);
 
@@ -169,7 +184,6 @@ function App() {
         <h2 className="section-title">Fault Injection</h2>
         <p className="section-desc">
           Inject faults into individual services to generate errors, slow traces, and queue failures in Dynatrace.
-          {activeMode && !activeFault && " "}
         </p>
         <div className="fault-grid">
           {FAULTS.map(({ mode, label, service, tech, desc }) => (
@@ -196,6 +210,31 @@ function App() {
             <span className="fault-tags">
               <span className="tag tag--reset">all services</span>
             </span>
+          </button>
+        </div>
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">OTEL Resource Attributes</h2>
+        <p className="section-desc">
+          Set <code>OTEL_RESOURCE_ATTRIBUTES</code> on all workloads and trigger rolling restarts.
+          Format: <code>key=value,key2=value2</code>
+        </p>
+        <div className="otel-row">
+          <input
+            className="otel-input"
+            type="text"
+            value={otelAttrs}
+            onChange={e => setOtelAttrs(e.target.value)}
+            placeholder="dt.event.deployment.name=v1.2.3,environment=demo"
+            disabled={otelPending}
+          />
+          <button
+            className="otel-apply-btn"
+            disabled={otelPending || !otelAttrs.trim()}
+            onClick={applyOtelAttrs}
+          >
+            {otelPending ? "Applying…" : "Apply & Restart"}
           </button>
         </div>
       </section>

@@ -82,7 +82,7 @@ metadata:
 rules:
   - apiGroups: ["apps"]
     resources: ["deployments"]
-    verbs: ["get", "patch"]
+    verbs: ["get", "list", "patch"]
   - apiGroups: ["networking.istio.io"]
     resources: ["virtualservices"]
     verbs: ["get", "patch"]
@@ -99,6 +99,30 @@ subjects:
 roleRef:
   kind: Role
   name: command-api-entropy
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: command-api-otel
+  namespace: nebulatrace-data
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: command-api-otel
+  namespace: nebulatrace-data
+subjects:
+  - kind: ServiceAccount
+    name: command-api
+    namespace: nebulatrace
+roleRef:
+  kind: Role
+  name: command-api-otel
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: apps/v1
