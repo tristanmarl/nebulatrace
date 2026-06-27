@@ -3,29 +3,15 @@ import os
 import time
 import uuid
 
-from fastapi import HTTPException
-
+import otel_setup
 import psycopg
 import stomp
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from opentelemetry import metrics, propagate, trace
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
-from opentelemetry.trace import SpanKind
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.trace import SpanKind
 
-trace.set_tracer_provider(TracerProvider(resource=Resource.create({"service.name": "mission-api"})))
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
-    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
-metric_readers = []
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"):
-    metric_readers.append(PeriodicExportingMetricReader(OTLPMetricExporter()))
-metrics.set_meter_provider(MeterProvider(resource=Resource.create({"service.name": "mission-api"}), metric_readers=metric_readers))
+otel_setup.setup("mission-api")
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)
 missions_created = meter.create_counter("nebulatrace.missions.created")

@@ -2,27 +2,15 @@ import json
 import os
 import time
 
+import otel_setup
 import psycopg
 import requests
 import stomp
 from opentelemetry import metrics, propagate, trace
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.trace import SpanKind
 
-trace.set_tracer_provider(TracerProvider(resource=Resource.create({"service.name": "drone-worker"})))
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
-    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
-metric_readers = []
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"):
-    metric_readers.append(PeriodicExportingMetricReader(OTLPMetricExporter()))
-metrics.set_meter_provider(MeterProvider(resource=Resource.create({"service.name": "drone-worker"}), metric_readers=metric_readers))
+otel_setup.setup("drone-worker")
 RequestsInstrumentor().instrument()
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)

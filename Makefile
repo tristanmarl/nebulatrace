@@ -5,12 +5,15 @@ KUBECTL ?= kubectl
 IMAGE_REGISTRY ?= nebulatrace
 IMAGE_TAG ?= dev
 
-SERVICES := bridge-ui command-api cargo-api mission-api credits-api drone-worker maintenance-api orbit-ai mock-llm load-generator faas-trigger rpc-target rpc-probe
+SERVICES := bridge-ui command-api cargo-api credits-api maintenance-api load-generator
+SHARED_CTX_SERVICES := drone-worker faas-trigger orbit-ai mission-api mock-llm rpc-probe rpc-target
+ALL_SERVICES := $(SERVICES) $(SHARED_CTX_SERVICES)
 
-.PHONY: build-images build test run-local stop-local push-images k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url status restart start stop set-owner reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
+.PHONY: build-images build test run-local stop-local push-images k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url status restart start stop set-owner reset
 
 build-images:
 	@for service in $(SERVICES); do docker build -t $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG) apps/$$service; done
+	@for service in $(SHARED_CTX_SERVICES); do docker build -f apps/$$service/Dockerfile -t $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG) apps; done
 
 build: build-images
 
@@ -24,7 +27,7 @@ stop-local:
 
 push-images:
 	@test "$(IMAGE_REGISTRY)" != "nebulatrace" || (echo "Set IMAGE_REGISTRY to a registry your cluster can pull from before pushing."; exit 1)
-	@for service in $(SERVICES); do docker push $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG); done
+	@for service in $(ALL_SERVICES); do docker push $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG); done
 
 k3s-load-images: IMAGE_REGISTRY=nebulatrace
 k3s-load-images: IMAGE_TAG=dev
@@ -65,18 +68,3 @@ set-owner:
 
 reset:
 	./scripts/reset-demo.sh
-
-entropy-slow-db:
-	./scripts/entropy-slow-db.sh
-
-entropy-queue-backlog:
-	./scripts/entropy-queue-backlog.sh
-
-entropy-credit-errors:
-	./scripts/entropy-credit-errors.sh
-
-entropy-wormhole-route:
-	./scripts/entropy-wormhole-route.sh
-
-entropy-ai-anomaly:
-	./scripts/entropy-ai-anomaly.sh

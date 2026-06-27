@@ -6,14 +6,8 @@ import urllib.error
 import urllib.request
 import uuid
 
+import otel_setup
 from opentelemetry import metrics, propagate, trace
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace import SpanKind, Status, StatusCode
 
 COMMAND_URL = os.getenv("COMMAND_URL", "http://command-api:8080").rstrip("/")
@@ -52,22 +46,11 @@ PROVIDERS = [
     },
 ]
 
-resource = Resource.create(
-    {
-        "service.name": "faas-trigger",
-        "service.namespace": "nebulatrace",
-        "faas.name": FUNCTION_NAME,
-        "faas.version": "v42",
-    }
-)
-trace.set_tracer_provider(TracerProvider(resource=resource))
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
-    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
-
-metric_readers = []
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"):
-    metric_readers.append(PeriodicExportingMetricReader(OTLPMetricExporter()))
-metrics.set_meter_provider(MeterProvider(resource=resource, metric_readers=metric_readers))
+otel_setup.setup("faas-trigger", extra={
+    "service.namespace": "nebulatrace",
+    "faas.name": FUNCTION_NAME,
+    "faas.version": "v42",
+})
 
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)

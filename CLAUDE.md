@@ -25,11 +25,11 @@ make reset                 # undo all entropy injections
 
 Entropy (fault injection):
 ```bash
-make entropy-slow-db
-make entropy-queue-backlog
-make entropy-credit-errors
-make entropy-wormhole-route
-make entropy-ai-anomaly
+./scripts/entropy-slow-db.sh
+./scripts/entropy-queue-backlog.sh
+./scripts/entropy-credit-errors.sh
+./scripts/entropy-wormhole-route.sh
+./scripts/entropy-ai-anomaly.sh
 ```
 
 After app code changes, rebuild and push affected GHCR images, then regenerate the dist manifest:

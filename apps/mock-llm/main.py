@@ -1,25 +1,13 @@
 import os
 import time
 
+import otel_setup
 from fastapi import FastAPI
 from pydantic import BaseModel
 from opentelemetry import metrics, trace
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
-trace.set_tracer_provider(TracerProvider(resource=Resource.create({"service.name": "mock-llm"})))
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
-    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
-metric_readers = []
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"):
-    metric_readers.append(PeriodicExportingMetricReader(OTLPMetricExporter()))
-metrics.set_meter_provider(MeterProvider(resource=Resource.create({"service.name": "mock-llm"}), metric_readers=metric_readers))
+otel_setup.setup("mock-llm")
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)
 llm_calls = meter.create_counter("nebulatrace.llm.calls")

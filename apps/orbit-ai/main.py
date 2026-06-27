@@ -1,27 +1,14 @@
 import os
 import time
 
+import otel_setup
 import requests
 from fastapi import FastAPI
 from opentelemetry import metrics, trace
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
-resource = Resource.create({"service.name": "orbit-ai"})
-trace.set_tracer_provider(TracerProvider(resource=resource))
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
-    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
-metric_readers = []
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"):
-    metric_readers.append(PeriodicExportingMetricReader(OTLPMetricExporter()))
-metrics.set_meter_provider(MeterProvider(resource=resource, metric_readers=metric_readers))
+otel_setup.setup("orbit-ai")
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)
 tokens = meter.create_counter("nebulatrace.orbit.tokens")

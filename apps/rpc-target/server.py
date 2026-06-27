@@ -4,21 +4,16 @@ import time
 from concurrent import futures
 
 import grpc
+import otel_setup
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.grpc import GrpcInstrumentorServer
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 import hyperdrive_pb2
 import hyperdrive_pb2_grpc
 
 PORT = int(os.getenv("RPC_PORT", "50051"))
 
-trace.set_tracer_provider(TracerProvider(resource=Resource.create({"service.name": "rpc-target"})))
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
-    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+otel_setup.setup("rpc-target")
 GrpcInstrumentorServer().instrument()
 
 

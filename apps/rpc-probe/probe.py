@@ -5,12 +5,9 @@ import time
 import uuid
 
 import grpc
+import otel_setup
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.grpc import GrpcInstrumentorClient
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 import hyperdrive_pb2
 import hyperdrive_pb2_grpc
@@ -19,9 +16,7 @@ TARGET = os.getenv("RPC_TARGET", "rpc-target:50051")
 DELAY_MS = int(os.getenv("RPC_PROBE_DELAY_MS", "2500"))
 MODES = ["ok", "ok", "not_found", "invalid", "internal", "deadline"]
 
-trace.set_tracer_provider(TracerProvider(resource=Resource.create({"service.name": "rpc-probe"})))
-if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
-    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+otel_setup.setup("rpc-probe")
 GrpcInstrumentorClient().instrument()
 
 
