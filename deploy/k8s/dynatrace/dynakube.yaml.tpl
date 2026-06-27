@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: dynakube
+  name: "${DYNAKUBE_NAME}"
   namespace: dynatrace
 type: Opaque
 stringData:
@@ -11,13 +11,13 @@ stringData:
 apiVersion: dynatrace.com/v1beta6
 kind: DynaKube
 metadata:
-  name: nebulatrace
+  name: "${DYNAKUBE_NAME}"
   namespace: dynatrace
   annotations:
     feature.dynatrace.com/automatic-injection: "false"
 spec:
   apiUrl: "${DT_API_URL}/api"
-  tokens: dynakube
+  tokens: "${DYNAKUBE_NAME}"
   enableIstio: true
   metadataEnrichment:
     enabled: true
@@ -45,6 +45,13 @@ spec:
       - kubernetes-monitoring
       - routing
       - dynatrace-api
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1.5Gi
+      limits:
+        cpu: 1000m
+        memory: 1.5Gi
   otlpExporterConfiguration:
     namespaceSelector:
       matchLabels:

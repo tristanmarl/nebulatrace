@@ -3,13 +3,15 @@ set -euo pipefail
 
 kubectl apply -f deploy/k8s/namespaces.yaml
 
+DYNAKUBE_NAME="${DYNAKUBE_NAME:-aws-k3s}"
+
 if ! command -v istioctl >/dev/null 2>&1; then
   echo "istioctl is required. Install it from https://istio.io/latest/docs/setup/getting-started/"
   exit 1
 fi
 
 meshconfig="$(mktemp)"
-cat > "$meshconfig" <<'YAML'
+cat > "$meshconfig" <<YAML
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 spec:
@@ -21,7 +23,7 @@ spec:
     extensionProviders:
       - name: dynatrace-otel
         opentelemetry:
-          service: nebulatrace-telemetry-ingest.dynatrace.svc.cluster.local
+          service: ${DYNAKUBE_NAME}-telemetry-ingest.dynatrace.svc.cluster.local
           port: 4318
           http:
             path: /v1/traces
