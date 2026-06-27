@@ -7,7 +7,7 @@ IMAGE_TAG ?= dev
 
 SERVICES := bridge-ui command-api cargo-api mission-api credits-api drone-worker maintenance-api orbit-ai mock-llm load-generator faas-trigger rpc-target rpc-probe
 
-.PHONY: build-images build test run-local stop-local push-images k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
+.PHONY: build-images build test run-local stop-local push-images k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url status restart start stop reset entropy-slow-db entropy-queue-backlog entropy-credit-errors entropy-wormhole-route entropy-ai-anomaly
 
 build-images:
 	@for service in $(SERVICES); do docker build -t $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG) apps/$$service; done
@@ -46,6 +46,18 @@ deploy:
 
 app-url:
 	$(KUBECTL) -n istio-system get svc istio-ingressgateway
+
+status:
+	./scripts/status.sh
+
+restart:
+	./scripts/restart-workloads.sh
+
+start:
+	./scripts/scale-demo.sh start
+
+stop:
+	./scripts/scale-demo.sh stop
 
 reset:
 	./scripts/reset-demo.sh

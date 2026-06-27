@@ -166,6 +166,20 @@ make app-url
 Set `IMAGE_REGISTRY` to a registry your Kubernetes cluster can pull from before
 running `make push-images`.
 
+## Day-Two Helpers
+
+```bash
+make status
+make restart
+make stop
+make start
+./scripts/set-resource-attributes.sh --show
+./scripts/set-resource-attributes.sh "deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.1,primary_tags.version=0.1.1,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring"
+```
+
+`stop` and `start` only scale NebulaTrace app/data workloads. They leave
+Dynatrace Operator, ActiveGate, Log Agent, OTel collector, and Istio running.
+
 ## Using GHCR
 
 For GitHub Container Registry, use this in `.env`:

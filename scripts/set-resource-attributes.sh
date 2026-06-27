@@ -3,6 +3,7 @@ set -euo pipefail
 
 APP_NAMESPACE="${APP_NAMESPACE:-nebulatrace}"
 DATA_NAMESPACE="${DATA_NAMESPACE:-nebulatrace-data}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'EOF'
@@ -122,13 +123,7 @@ kubectl -n "$APP_NAMESPACE" set env deployment --all "OTEL_RESOURCE_ATTRIBUTES=$
 kubectl -n "$DATA_NAMESPACE" set env deployment --all "OTEL_RESOURCE_ATTRIBUTES=$new_attrs"
 kubectl -n "$DATA_NAMESPACE" set env statefulset --all "OTEL_RESOURCE_ATTRIBUTES=$new_attrs"
 
-kubectl -n "$APP_NAMESPACE" rollout restart deployment --all
-kubectl -n "$DATA_NAMESPACE" rollout restart deployment --all
-kubectl -n "$DATA_NAMESPACE" rollout restart statefulset --all
-
-kubectl -n "$APP_NAMESPACE" rollout status deployment --all --timeout=180s
-kubectl -n "$DATA_NAMESPACE" rollout status deployment --all --timeout=180s
-kubectl -n "$DATA_NAMESPACE" rollout status statefulset --all --timeout=180s
+"$ROOT/scripts/restart-workloads.sh"
 
 echo
 echo "Done."
