@@ -111,7 +111,7 @@ This creates the Operator-managed telemetry ingest service that Envoy sends
 OTLP/HTTP traces to:
 
 ```text
-aws-k3s-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces
+aws-appmon-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces
 ```
 
 The demo pins the telemetry ingest collector image with:
@@ -146,7 +146,7 @@ Useful Operator checks:
 ```bash
 kubectl get dynakubes -n dynatrace
 kubectl exec deploy/dynatrace-operator -n dynatrace -- dynatrace-operator troubleshoot
-kubectl -n dynatrace describe dynakube aws-k3s
+kubectl -n dynatrace describe dynakube aws-appmon
 kubectl -n dynatrace logs deploy/dynatrace-operator --tail=200
 ```
 
@@ -372,7 +372,7 @@ messaging.operation=publish|consume
 NebulaTrace does not use Classic Istio monitoring as the primary story. Istio is
 installed with an OpenTelemetry extension provider named `dynatrace-otel`.
 Envoy sends mesh spans directly to the Dynatrace Operator telemetry ingest
-service at `${DYNAKUBE_NAME:-aws-k3s}-telemetry-ingest.dynatrace.svc.cluster.local:4318` with
+service at `${DYNAKUBE_NAME:-aws-appmon}-telemetry-ingest.dynatrace.svc.cluster.local:4318` with
 HTTP path `/v1/traces` and Dynatrace resource detection enabled.
 
 App spans from OneAgent and OpenTelemetry still carry trace context through the

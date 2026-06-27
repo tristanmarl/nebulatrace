@@ -73,7 +73,7 @@ The demo should show:
   without mapping logic. Do not set `service.name` in this shared value.
 - Istio traces use an OpenTelemetry extension provider that sends Envoy spans to
   the Dynatrace Operator telemetry ingest service:
-  `${DYNAKUBE_NAME:-aws-k3s}-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces`.
+  `${DYNAKUBE_NAME:-aws-appmon}-telemetry-ingest.dynatrace.svc.cluster.local:4318/v1/traces`.
 - ActiveMQ is OneAgent-injected so the Dynatrace Apache ActiveMQ Classic/JMX
   extension can be enabled in the tenant.
 
@@ -133,7 +133,7 @@ make k3s-load-images
 IMAGE_REGISTRY=nebulatrace IMAGE_TAG=dev ./scripts/deploy-demo.sh
 kubectl -n nebulatrace get pods
 kubectl -n nebulatrace-data get pods
-kubectl -n dynatrace get dynakube aws-k3s
+kubectl -n dynatrace get dynakube aws-appmon
 ```
 
 Useful runtime checks:
