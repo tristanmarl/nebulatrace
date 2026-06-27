@@ -68,6 +68,39 @@ spec:
       port: 8080
       targetPort: 8080
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: command-api
+  namespace: nebulatrace
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: command-api-entropy
+  namespace: nebulatrace
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch"]
+  - apiGroups: ["networking.istio.io"]
+    resources: ["virtualservices"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: command-api-entropy
+  namespace: nebulatrace
+subjects:
+  - kind: ServiceAccount
+    name: command-api
+    namespace: nebulatrace
+roleRef:
+  kind: Role
+  name: command-api-entropy
+  apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -86,6 +119,7 @@ spec:
         oneagent.dynatrace.com/inject: "true"
         metadata.dynatrace.com/service: command-api
     spec:
+      serviceAccountName: command-api
       containers:
         - name: command-api
           image: ${IMAGE_REGISTRY}/command-api:${IMAGE_TAG}

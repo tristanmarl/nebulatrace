@@ -43,6 +43,50 @@ button {
   background: #102033;
   color: #f4f7fb;
   font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.entropy-panel {
+  border-color: #4b1010;
+}
+
+.entropy-badge {
+  margin-left: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f87171;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.entropy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.entropy-btn {
+  border-color: #7f1d1d;
+  background: #1f0a0a;
+  color: #fca5a5;
+}
+
+.entropy-btn--active {
+  border-color: #f87171;
+  background: #3b0a0a;
+  color: #fecaca;
+}
+
+.entropy-btn--reset {
+  border-color: #374151;
+  background: #111827;
+  color: #9ca3af;
 }
 
 .panel {
