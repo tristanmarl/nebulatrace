@@ -14,24 +14,28 @@ No local Node, Go, Java, or Python needed — everything builds inside Docker.
 
 ## Deploy
 
-### Option A — one-line install (cluster already has Istio + Dynatrace Operator)
+### Option A — full setup from scratch (one script)
+
+Installs Istio, the Dynatrace Operator, and the app in one shot:
+
+```bash
+curl -sL https://raw.githubusercontent.com/tristanmarl/nebulatrace/main/setup.sh | \
+  DT_TENANT_URL=https://abc123.live.dynatrace.com \
+  DT_API_TOKEN=dt0c01.xxx \
+  bash
+```
+
+Optional overrides: `DYNAKUBE_NAME`, `K8S_CLUSTER_NAME`, `IMAGE_REGISTRY`, `IMAGE_TAG`, `LOADGEN_DELAY_MS`.
+
+Prerequisites: `kubectl` (pointed at your cluster), `helm`, `istioctl`, `envsubst` (`apt install gettext-base`).
+
+### Option B — app only (cluster already has Istio + Dynatrace Operator)
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/tristanmarl/nebulatrace/main/deploy/dist/nebulatrace.yaml
 ```
 
 Images are public on GHCR (`ghcr.io/tristanmarl/nebulatrace/<service>:latest`).
-
-### Option B — full setup from scratch
-
-```bash
-cp .env.example .env
-# Edit .env: set DT_TENANT_URL, DT_API_TOKEN, K8S_CLUSTER_NAME
-make install-istio
-make install-dynatrace
-make deploy
-make app-url
-```
 
 ### Option C — local k3s (no registry needed)
 
