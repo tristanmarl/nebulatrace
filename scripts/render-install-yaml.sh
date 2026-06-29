@@ -25,7 +25,7 @@ if [ "$USE_ENV" -eq 1 ] && [ -f .env ]; then
   load_env_file .env
 fi
 
-export IMAGE_REGISTRY="${IMAGE_REGISTRY:-ghcr.io/example-org/nebulatrace}"
+export IMAGE_REGISTRY="${IMAGE_REGISTRY:-ghcr.io/tristanmarl/nebulatrace}"
 export IMAGE_TAG="${IMAGE_TAG:-latest}"
 export OTEL_RESOURCE_ATTRIBUTES="${OTEL_RESOURCE_ATTRIBUTES:-deployment.release_stage=demo,primary_tags.env=demo,deployment.release_version=0.1.0,primary_tags.version=0.1.0,primary_tags.app=nebulatrace,k8s.namespace.label.team=service-monitoring,dt.owner=service-monitoring}"
 export DT_CUSTOM_PROP="${DT_CUSTOM_PROP:-dt.owner=service-monitoring}"

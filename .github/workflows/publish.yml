@@ -1,0 +1,83 @@
+name: Publish images
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/tristanmarl/nebulatrace
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        include:
+          # Services with their own build context (apps/<service>)
+          - service: bridge-ui
+            shared_ctx: false
+          - service: command-api
+            shared_ctx: false
+          - service: cargo-api
+            shared_ctx: false
+          - service: credits-api
+            shared_ctx: false
+          - service: maintenance-api
+            shared_ctx: false
+          - service: load-generator
+            shared_ctx: false
+          # Services that need the shared apps/ context (Dockerfile at apps/<service>/Dockerfile, context at apps/)
+          - service: drone-worker
+            shared_ctx: true
+          - service: faas-trigger
+            shared_ctx: true
+          - service: orbit-ai
+            shared_ctx: true
+          - service: mission-api
+            shared_ctx: true
+          - service: mock-llm
+            shared_ctx: true
+          - service: rpc-probe
+            shared_ctx: true
+          - service: rpc-target
+            shared_ctx: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.shared_ctx && 'apps' || format('apps/{0}', matrix.service) }}
+          file: apps/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+
+  render-manifest:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Render dist manifest
+        run: ./scripts/render-install-yaml.sh --no-env
+
+      - name: Commit updated manifest
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update dist manifest [skip ci]"
+          file_pattern: deploy/dist/nebulatrace.yaml

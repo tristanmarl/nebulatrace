@@ -9,7 +9,7 @@ SERVICES := bridge-ui command-api cargo-api credits-api maintenance-api load-gen
 SHARED_CTX_SERVICES := drone-worker faas-trigger orbit-ai mission-api mock-llm rpc-probe rpc-target
 ALL_SERVICES := $(SERVICES) $(SHARED_CTX_SERVICES)
 
-.PHONY: build-images build test run-local stop-local push-images k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url status restart start stop set-owner reset
+.PHONY: build-images build test run-local stop-local push-images publish k3s-load-images k3s-deploy install-istio install-dynatrace deploy app-url status restart start stop set-owner reset
 
 build-images:
 	@for service in $(SERVICES); do docker build -t $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG) apps/$$service; done
@@ -28,6 +28,11 @@ stop-local:
 push-images:
 	@test "$(IMAGE_REGISTRY)" != "nebulatrace" || (echo "Set IMAGE_REGISTRY to a registry your cluster can pull from before pushing."; exit 1)
 	@for service in $(ALL_SERVICES); do docker push $(IMAGE_REGISTRY)/$$service:$(IMAGE_TAG); done
+
+publish: IMAGE_REGISTRY=ghcr.io/tristanmarl/nebulatrace
+publish: IMAGE_TAG=latest
+publish: build-images push-images
+	./scripts/render-install-yaml.sh --no-env
 
 k3s-load-images: IMAGE_REGISTRY=nebulatrace
 k3s-load-images: IMAGE_TAG=dev
